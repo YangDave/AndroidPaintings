@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+
+    <ImageView
+        android:id="@+id/asso_mark"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerInside"
+        android:clickable="true"
+        android:background="@android:color/darker_gray" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:shrinkColumns="0"
+        android:stretchColumns="1" >
+
+        <TableRow android:paddingTop="10dp" >
+
+            <TextView
+                style="@style/asso_info_column"
+                android:text="@string/asso_info_name" />
+
+            <TextView
+                android:id="@+id/asso_name"
+                style="@style/asso_info_content" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+             <TextView
+                style="@style/asso_info_column"
+                android:text="@string/asso_info_creater" />
+
+            <TextView
+                android:id="@+id/asso_founder"
+                style="@style/asso_info_content" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+            <TextView
+                android:text="@string/asso_info_chairman"
+                style="@style/asso_info_column" />
+
+            <TextView
+                android:id="@+id/asso_president"
+                style="@style/asso_info_content" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+            <TextView
+                android:text="@string/asso_info_create_time"
+                style="@style/asso_info_column" />
+
+            <TextView
+                android:id="@+id/asso_creation_date"
+                style="@style/asso_info_content" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+            <TextView
+                android:text="@string/asso_info_introduction"
+                style="@style/asso_info_column" />
+
+            <TextView
+                android:id="@+id/asso_introduction"
+                style="@style/asso_info_content"/>
+        </TableRow>
+    </TableLayout>
+
+
+</LinearLayout>

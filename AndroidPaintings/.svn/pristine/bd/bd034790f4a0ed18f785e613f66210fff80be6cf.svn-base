@@ -1,0 +1,239 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+
+public class MyFocusActivity extends Activity{
+	ListView myFocusList;
+	FocusAdapter adapter=null;
+	int user_id;
+	
+
+	@SuppressWarnings("unchecked")
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_my_focus);
+		ExitApplication.getInstance().addActivity(this);
+		myFocusList=(ListView)findViewById(R.id.myfocuslist);
+		user_id=MainActivity.user_id;
+		
+		
+		Toast.makeText(MyFocusActivity.this, user_id+"", 5000).show();
+		Map<String,Object> focusMap=new HashMap<String, Object>();
+		focusMap.put("user_id",user_id);
+		GetFocusTask getFocus=new GetFocusTask();
+		getFocus.execute(focusMap);
+			
+			adapter=new FocusAdapter(MyFocusActivity.this,new ArrayList<Map<String,Object>>());
+			myFocusList.setAdapter(adapter);
+			
+		myFocusList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View mView, int position,
+					long arg3) {
+				// TODO Auto-generated method stub
+				Map<String,Object> map=(Map<String, Object>) adapter.getItem(position);
+				int focused_id=(Integer) map.get("focused_id");
+				Intent showFocusedInfoIntent=new Intent(MyFocusActivity.this,PersonInfoActivity.class);
+				showFocusedInfoIntent.putExtra("person_id", focused_id);
+				showFocusedInfoIntent.putExtra("user_id", user_id);
+				showFocusedInfoIntent.putExtra("focusedornot", true);
+				startActivity(showFocusedInfoIntent);
+				
+			}
+		});
+		
+		
+		
+		
+	}
+	class GetFocusTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		int checkCode;
+		List<Map<String,Object>> focused_list;
+		JSONArray focused_items;
+
+		@Override
+		protected void onCancelled() {
+			// TODO Auto-generated method stub
+			super.onCancelled();
+		}
+
+		@Override
+		protected void onCancelled(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onCancelled(result);
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			
+			for(int i=0;i<focused_items.length();i++){
+				Map<String,Object> item=new HashMap<String, Object>();
+				JSONObject jsonItem=focused_items.optJSONObject(i);
+				item.put("focusedname",jsonItem.optString("realname"));
+				item.put("focused_id", jsonItem.optInt("real_id"));
+				adapter.getItems().add(item);
+			}
+			adapter.notifyDataSetChanged();
+			
+			
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			// TODO Auto-generated method stub
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Api.GET_FOCUS, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								// "{'username':'sdfsf'}"
+								if (json != null && json.optInt("code") == 1) {
+									focused_items = json
+											.optJSONArray("result");
+									
+									checkCode = json.optInt("code");
+									// JSONArray js=new JSONArray();
+									// Map<String, Object> map=new
+									// HashMap<String,Object>();
+									// TODO
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+				//Toast.makeText(getActivity(), "未知错误", 5000);
+			}
+
+			return json;
+			
+		}
+		
+	}
+	class FocusAdapter extends BaseAdapter{
+		private Context mContext;
+		private List<Map<String,Object>> adapterItems;
+		
+		public void notifyDataSetChanged() {
+			// TODO Auto-generated method stub
+			super.notifyDataSetChanged();
+		}
+		
+		public FocusAdapter(Context mContext,List<Map<String,Object>> adapterItems){
+			this.mContext=mContext;
+			this.adapterItems=adapterItems;
+			
+		}
+		public void setItems(List<Map<String,Object>> adapterItems){
+			this.adapterItems=adapterItems;
+		
+		}
+		
+		public List<Map<String,Object>> getItems(){
+			return adapterItems;
+			
+		}
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return adapterItems.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			return adapterItems.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			ItemViewHolder itemViewHolder = null;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(mContext).inflate(
+						R.layout.collect_listitem, null);
+				itemViewHolder = new ItemViewHolder();
+				convertView.setTag(itemViewHolder);
+
+			} else {
+				itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+			}
+
+			itemViewHolder.focusText = (TextView)convertView.findViewById(R.id.pic_name);
+			@SuppressWarnings("unchecked")
+			Map<String, Object> focusedItem = (Map<String, Object>) getItem(position);
+			itemViewHolder.focusText
+					.setText((String)focusedItem.get("focusedname"));
+			return convertView;
+		}
+		class ItemViewHolder{
+			TextView focusText;
+		}
+		
+	}
+
+
+}

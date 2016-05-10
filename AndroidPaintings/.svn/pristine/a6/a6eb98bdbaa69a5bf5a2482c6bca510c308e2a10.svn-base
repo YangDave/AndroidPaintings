@@ -1,0 +1,367 @@
+package com.vgpt.androidpaintings.compoent.fragment;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.TextView;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.activity.MyApplication;
+import com.vgpt.androidpaintings.compoent.activity.ShowImageActivity;
+import com.vgpt.androidpaintings.compoent.adapter.PaintingListAdapter;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+
+/**
+ * @author Charles
+ * 7-22
+ *
+ */
+public class Fragment1 extends Fragment {
+	private static final int LEFT = 1;
+	private static final int RIGHT = 0;
+	private static int SIZE = 3;
+
+	boolean isWorking = false;
+	Button all_button;
+	Button figure_button;
+	Button landscape_button;
+	Button bird_button;
+	Button insect_button;
+	Button more_button;
+	int buttonId;
+	GridView list;
+	
+	int[] page = { 1, 1, 1, 1, 1, 1 };
+	final int LENGTH=50;
+	ArrayList<Integer> pic_idList;
+	String category="all";
+	
+	
+	TextView loadMoreText;
+	
+	PaintingListAdapter adapter = null;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment1, container, false);
+		
+		list = (GridView) rootView.findViewById(R.id.listview_container);
+		
+		all_button = (Button) rootView.findViewById(R.id.all_button);
+		figure_button = (Button) rootView.findViewById(R.id.figure_button);
+		landscape_button = (Button) rootView.findViewById(R.id.landscape_button);
+		bird_button = (Button) rootView.findViewById(R.id.bird_button);
+		insect_button = (Button) rootView.findViewById(R.id.insect_button);
+		more_button = (Button) rootView.findViewById(R.id.more_button);
+		loadMoreText=(TextView)rootView.findViewById(R.id.loadmore);
+		
+
+		ButtonClick buttonListener = new ButtonClick();
+		figure_button.setOnClickListener(buttonListener);
+		landscape_button.setOnClickListener(buttonListener);
+		bird_button.setOnClickListener(buttonListener);
+		insect_button.setOnClickListener(buttonListener);
+		more_button.setOnClickListener(buttonListener);
+		all_button.setOnClickListener(buttonListener);
+		
+//		设置加载更多组件不显示不占空间
+		loadMoreText.setVisibility(View.GONE);
+		
+		adapter = new PaintingListAdapter(MyApplication.applicationContext,
+				new ArrayList<Map<String, Object>>());
+		list.setAdapter(adapter);
+		
+		//设置默认加载不分类别图片（即全部图片)	
+//		设置按钮"全部"不可点击
+		all_button.setClickable(false);;
+		all_button.setBackgroundColor(Color.GRAY);
+		Map<String,Object> painting_first_show=new HashMap<String, Object>();
+		painting_first_show.put("page",1);
+		painting_first_show.put("size",SIZE);
+		painting_first_show.put("category", "all");
+		QueryListTask first_show=new QueryListTask();
+		first_show.execute(painting_first_show);
+		
+		pic_idList=new ArrayList<Integer>();
+		
+//		设置下滑事件，下滑加载更多图片
+		list.setOnScrollListener(new OnScrollListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE
+						&& !isWorking) {
+					isWorking = true;
+					if (view.getLastVisiblePosition() == view.getCount() - 1) {
+						buttonId = all_button.isClickable() ? (figure_button
+								.isClickable() ? (landscape_button
+								.isClickable() ? (bird_button.isClickable() ? (insect_button
+								.isClickable() ? R.id.more_button
+								: R.id.insect_button) : R.id.bird_button)
+								: R.id.landscape_button)
+								: R.id.figure_button)
+								: R.id.all_button;
+						category = buttonId == R.id.all_button ? "all"
+								: buttonId == R.id.figure_button ? "figure"
+										: buttonId == R.id.landscape_button ? "mountain"
+												: buttonId == R.id.bird_button ? "bird"
+														: buttonId == R.id.insect_button ? "insect"
+																: "others";
+						int i = buttonId == R.id.all_button ? 0
+								: buttonId == R.id.figure_button ? 1
+										: buttonId == R.id.landscape_button ? 2
+												: buttonId == R.id.bird_button ? 3
+														: buttonId == R.id.insect_button ? 4
+																: 5;
+						Map<String, Object> paintingRequest = new HashMap<String, Object>();
+						paintingRequest.put("page", ++page[i]);
+						paintingRequest.put("size", SIZE);
+						paintingRequest.put("category", category);
+						QueryListTask load = new QueryListTask();
+						load.execute(paintingRequest);
+					}
+
+				}
+
+			}
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+
+			}
+		});
+		
+//		设置列表项选择事件
+		list.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> list_adapter, View listView, int position,
+					long arg3) {
+				Intent itemIntent=new Intent(getActivity(),ShowImageActivity.class);
+				itemIntent.putExtra("pic_id", 
+						(Integer) ((Map<String,Object>) adapter.getItem(position)).get("pic_id"));
+				itemIntent.putExtra("user_id", MainActivity.user_id);
+				itemIntent.putExtra("collectornot", false);
+				itemIntent.putExtra("position", position);
+				itemIntent.putIntegerArrayListExtra("pic_idList", pic_idList);
+				itemIntent.putExtra("category", category);
+				int i=pic_idList.size()%SIZE+1;
+				itemIntent.putExtra("page", i);
+				startActivity(itemIntent);
+			}
+		});
+		
+		return rootView;
+
+	}
+    
+   
+	class ButtonClick implements OnClickListener {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			
+			pic_idList.clear();
+			 int pressedbuttonId = all_button.isClickable() ? (figure_button.isClickable() ? (landscape_button
+					.isClickable() ? (bird_button.isClickable() ? (insect_button
+					.isClickable() ? R.id.more_button : R.id.insect_button)
+					: R.id.bird_button)
+					: R.id.landscape_button)
+					: R.id.figure_button)
+					: R.id.all_button;
+			
+			switch (pressedbuttonId) {
+			case R.id.all_button: {
+				all_button.setClickable(true);
+				all_button.setBackgroundColor(Color.LTGRAY);
+			}
+				break;
+			case R.id.figure_button: {
+				figure_button.setClickable(true);
+				figure_button.setBackgroundColor(Color.LTGRAY);
+			}
+				break;
+			case R.id.landscape_button: {
+				landscape_button.setClickable(true);
+				landscape_button.setBackgroundColor(Color.LTGRAY);
+			}
+				break;
+			case R.id.bird_button: {
+				bird_button.setClickable(true);
+				bird_button.setBackgroundColor(Color.LTGRAY);
+			}
+				break;
+			case R.id.insect_button: {
+				insect_button.setClickable(true);
+				insect_button.setBackgroundColor(Color.LTGRAY);
+			}
+				break;
+			case R.id.more_button: {
+				more_button.setClickable(true);
+				more_button.setBackgroundColor(Color.LTGRAY);
+			}
+				break;
+			}
+
+			adapter.getlistItems().clear();
+			v.setClickable(false);
+			v.setBackgroundColor(Color.GRAY);
+			buttonId = v.getId();
+			category = buttonId == R.id.all_button ? "all"
+					: buttonId == R.id.figure_button ? "figure"
+							: buttonId == R.id.landscape_button ? "mountain"
+									: buttonId == R.id.bird_button ? "bird"
+											: buttonId == R.id.insect_button ? "insect"
+													: "more";
+			Map<String, Object> paintingRequest = new HashMap<String, Object>();
+			paintingRequest.put("page", 1);
+			paintingRequest.put("size", SIZE);
+			paintingRequest.put("category", category);
+			QueryListTask load = new QueryListTask();
+			load.execute(paintingRequest);
+
+		}
+
+	}
+
+	class QueryListTask extends
+			AsyncTask<Map<String, Object>, Integer, JSONObject> {
+		int checkCode;
+//        public boolean isWorking=false;
+		int pages;
+		JSONArray items;
+
+		@Override
+		protected void onCancelled() {
+			isWorking = false;
+			super.onCancelled();
+		}
+
+
+		@Override
+		protected void onPreExecute() {
+			isWorking = true;
+			loadMoreText.setVisibility(View.VISIBLE);
+			super.onPreExecute();
+
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			if (checkCode == 1) {
+//         切换类别清空列表
+				if (pages == 1) {
+					adapter.getlistItems().clear();
+				}
+				for (int i = 0; i < items.length(); i++) {
+					Map<String, Object> listItem = new HashMap<String, Object>();
+					JSONObject itemObject = items.optJSONObject(i);
+					listItem.put("name", itemObject.optString("name"));
+					
+					listItem.put("introduction",
+							itemObject.optString("introduction"));
+					listItem.put("pic_id", itemObject.optInt("pic_id"));
+					adapter.getlistItems().add(listItem);
+					pic_idList.add(itemObject.optInt("pic_id"));
+
+				}
+				adapter.notifyDataSetChanged();
+				isWorking = false;
+				
+				loadMoreText.setVisibility(View.GONE);
+				
+			}
+		}
+
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+
+			isWorking = true;
+
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Painting.PAINTING_LOAD, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null ) {
+									checkCode=json.optInt("code");
+									if(checkCode== 1){
+									JSONObject ret = json
+											.optJSONObject("result");
+									items = ret.optJSONArray("items");
+									JSONObject request = json
+											.optJSONObject("request");
+									pages = request.optInt("page");
+									checkCode = json.optInt("code");
+									}
+									
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+			
+		}
+
+	}
+
+
+}

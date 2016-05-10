@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:orientation="vertical" >
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="right">
+        <Button 
+            android:id="@+id/okbutton"
+            android:text="提交"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+        <Button 
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消"/>
+    </LinearLayout>
+    
+    <ImageView 
+        android:paddingTop="15dp"
+        android:id="@+id/image"
+        android:layout_width="200dp"
+        android:layout_height="140dp"
+        android:clickable="true"
+        android:layout_gravity="center_horizontal"
+        
+        android:src="@drawable/ic_launcher"/>
+    <TableLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:stretchColumns="1"
+        android:shrinkColumns="0"
+        android:paddingTop="10dp">
+        <TableRow android:paddingTop="3dp">
+            <TextView 
+                
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/uploader"/>
+            <TextView 
+                android:id="@+id/uploader"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:singleLine="true"
+                />
+        </TableRow>
+        <TableRow android:paddingTop="3dp">
+            <TextView 
+                
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="作者："/>
+            <EditText 
+                android:id="@+id/author"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:singleLine="true"
+                />
+        </TableRow>
+        <TableRow 
+            android:paddingTop="3dp">
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/paintingname"/>
+            <EditText 
+                android:id="@+id/paintingname"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:singleLine="true"/>
+        </TableRow>
+        
+        <TableRow android:paddingTop="3dp">
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/creation_date"/>
+            <Button 
+                android:id="@+id/creation_date"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                />
+        </TableRow>
+        <TableRow android:paddingTop="3dp">
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="作品类别"/>
+            <Button 
+                android:id="@+id/category"
+                android:text="点选类别"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                />
+        </TableRow>
+        
+       
+            <TextView 
+                android:paddingTop="3dp"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:text="@string/paintingsize"/>
+        
+        <TableRow 
+            android:paddingTop="3dp">
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/height"/>
+            <EditText 
+                android:id="@+id/height"
+                android:inputType="number"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:singleLine="true"/>
+            </TableRow>
+            <TableRow 
+            android:paddingTop="3dp">
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/width"/>
+            <EditText 
+                android:id="@+id/width"
+                android:inputType="number"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:singleLine="true"/>
+            </TableRow>
+    </TableLayout>
+            
+            <TextView 
+                android:paddingTop="3dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/paintingintroduction"/>
+            <EditText 
+                android:id="@+id/paintingintroduction"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"/>
+     
+
+</LinearLayout>
+ 
+</ScrollView>

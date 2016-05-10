@@ -1,0 +1,65 @@
+package com.vgpt.androidpaintings.entity;
+
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Map;
+
+
+public class CommentItem implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private int user_id;
+	private String username;
+	private String date;
+	private String context;
+	private int comment_id;
+	public int getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(int user_id) {
+		this.user_id = user_id;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getDate() {
+		return date;
+	}
+	public void setDate(String date) {
+		this.date = date;
+	}
+	public String getContext() {
+		return context;
+	}
+	public void setContext(String context) {
+		this.context = context;
+	}
+	
+	public int getComment_id() {
+		return comment_id;
+	}
+	public void setComment_id(int comment_id) {
+		this.comment_id = comment_id;
+	}
+	
+	
+	public CommentItem() {
+		super();
+	}
+	public CommentItem(Map<String,Object> map){
+		setUser_id((Integer)map.get("user_id"));
+		setUsername((String)map.get("username"));
+		setDate((String)map.get("date"));
+		setContext((String)map.get("body"));
+		setComment_id((Integer)map.get("comment_id"));
+		
+	}
+	
+
+}

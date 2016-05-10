@@ -1,0 +1,100 @@
+package com.vgpt.androidpaintings.compoent.fragment;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.widget.AuctionScrollView;
+
+/**
+ * @author Charles
+ * TODO 期刊
+ *
+ */
+public class Fragment2 extends Fragment  {
+	OnBackListener mListener;
+	int user_id=MainActivity.user_id;
+	String username=MainActivity.username;
+	TextView loadMore;
+	final static int SIZE=3;
+	boolean isWorking=false;
+	Button allBt,gongbiBt,xieyiBt,xihuaBt,shufaBt,otherBt;
+	
+	TextView allBlank,gongbiBlank,xieyiBlank,xihuaBlank,shufaBlank,otherBlank;
+	
+	AuctionScrollView asv;
+	
+
+	public interface OnBackListener {
+		public void backEvent();
+	}
+	
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (OnBackListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+        }
+    }
+    
+    
+
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		View parentView = inflater.inflate(R.layout.fragment2, container, false);
+		
+		{
+			allBt = (Button)parentView.findViewById(R.id.all_button);
+			gongbiBt = (Button)parentView.findViewById(R.id.gongbi_button);
+			xieyiBt = (Button)parentView.findViewById(R.id.xieyi_button);
+			xihuaBt = (Button)parentView.findViewById(R.id.xihua_button);
+			shufaBt = (Button)parentView.findViewById(R.id.shufa_button);
+			otherBt = (Button)parentView.findViewById(R.id.other_button);
+			
+			allBlank = (TextView)parentView.findViewById(R.id.allblank);
+			gongbiBlank = (TextView)parentView.findViewById(R.id.gongbiblank);
+			xieyiBlank = (TextView)parentView.findViewById(R.id.xieyiblank);
+			xihuaBlank = (TextView)parentView.findViewById(R.id.xihuablank);
+			shufaBlank = (TextView)parentView.findViewById(R.id.shufablank);
+			otherBlank = (TextView)parentView.findViewById(R.id.otherblank);
+			
+			asv = (AuctionScrollView)parentView.findViewById(R.id.auction_scroll_view);
+			
+			loadMore=(TextView)parentView.findViewById(R.id.loadmore);
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		return parentView;
+	}
+	
+	
+	
+
+}

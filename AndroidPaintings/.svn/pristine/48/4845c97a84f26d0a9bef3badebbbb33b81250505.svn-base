@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:orientation="vertical" >
+    
+    <LinearLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal">
+         <SearchView 
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"/>
+         
+         <EditText 
+             android:id="@+id/search"
+             android:layout_width="180dp"
+             android:layout_height="wrap_content"/>
+         
+         <Button 
+             android:id="@+id/searchButton"
+             android:layout_width="wrap_content"
+             android:layout_height="match_parent"
+             android:text="查找"/>
+        
+    </LinearLayout>
+    
+    <RadioGroup 
+        android:id="@+id/searchgroup"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical">
+        
+        <RadioButton 
+            android:id="@+id/search_pic"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="搜索书画"
+            android:textSize="20dp"
+            android:checked="true"/>
+        
+         <RadioButton 
+            android:id="@+id/search_user"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="搜索用户"
+            android:textSize="20dp"/>
+        
+    </RadioGroup>
+    
+
+</LinearLayout>

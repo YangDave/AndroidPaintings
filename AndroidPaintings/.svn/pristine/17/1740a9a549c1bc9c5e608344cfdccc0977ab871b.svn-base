@@ -1,0 +1,125 @@
+package com.vgpt.androidpaintings.compoent.activity.association;
+
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.biz.SaveToLocalPainting;
+import com.vgpt.androidpaintings.compoent.activity.PictureChangeSizeShowActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+
+public class AssociationActivity extends Activity{
+	TextView associationNameText;
+
+	Association association=null;
+	ImageView mark;
+	String asso_name;
+	String url;
+	int asso_id=0;
+	Button assoInfo;
+	Button assoMember;
+	Button assoNotice;
+	Button assoActivity;
+	Button assoMore;
+	Button assoJoinPerson;
+	Drawable drawable;
+	
+	
+	protected void onCreate(Bundle savedInstanceState){
+		
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_association_single);
+		ExitApplication.getInstance().addActivity(this);
+		associationNameText=(TextView)findViewById(R.id.associationname);
+		mark=(ImageView)findViewById(R.id.mark);
+		assoInfo=(Button)findViewById(R.id.associationinfo);
+		assoMember=(Button)findViewById(R.id.member);
+		assoNotice=(Button)findViewById(R.id.notice);
+		assoActivity=(Button)findViewById(R.id.activity);
+		assoMore=(Button)findViewById(R.id.more);
+		assoJoinPerson=(Button)findViewById(R.id.usertojoinin);
+		
+		
+		
+		Intent intent=getIntent();
+
+		association=(Association)intent.getSerializableExtra("association");
+		asso_name=association.getAsso_name();
+	    url=association.getMark_url();
+	    asso_id=association.getAsso_id();
+	
+		associationNameText.setText(asso_name);
+		url=Constant.Association.GET_MARK+asso_id;
+	    Picasso.with(AssociationActivity.this).load(url).into(mark);
+	    
+	    if(mark.getDrawingCache()!=null){
+	    	Bitmap bm=mark.getDrawingCache();
+	    	SaveToLocalPainting.saveMark(asso_id, bm);
+	    }
+	    
+	    
+	   assoInfo.setOnClickListener(new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			if(asso_id!=0){
+			
+			Intent assoInfoIntent=new Intent(AssociationActivity.this,AssociationInfoActivity.class);
+			assoInfoIntent.putExtra("asso_id", asso_id);
+			assoInfoIntent.putExtra("ismember", true);
+			startActivity(assoInfoIntent);
+		}}
+	}); 
+	   assoMember.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(asso_id!=0){
+				
+				Intent assoMemberIntent=new Intent(AssociationActivity.this,AssociationMemberActivity.class);
+				assoMemberIntent.putExtra("asso_id", asso_id);
+				assoMemberIntent.putExtra("asso_name", asso_name);
+				startActivity(assoMemberIntent);
+				
+				}
+			}
+		});
+	   assoNotice.setOnClickListener(new OnClickListener() {
+		
+		@Override
+		public void onClick(View arg0) {
+			if(asso_id!=0){
+				Intent assoNoticeIntent=new Intent(AssociationActivity.this,AssociationNoticeActivity.class);
+				Bundle assodata=new Bundle();
+				assodata.putSerializable("association", association);
+				assoNoticeIntent.putExtras(assodata);
+				startActivity(assoNoticeIntent);
+				
+			}
+			
+		}
+	});
+	   
+	   mark.setOnClickListener(new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			Intent intent=new Intent(AssociationActivity.this,PictureChangeSizeShowActivity.class);
+			intent.putExtra("url", url);
+			startActivity(intent);
+			
+		}
+	});
+	}
+}

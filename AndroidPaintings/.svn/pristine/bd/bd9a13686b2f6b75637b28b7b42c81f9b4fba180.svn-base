@@ -1,0 +1,395 @@
+package com.vgpt.androidpaintings.compoent.activity.paintings;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.DatePickerDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.MediaStore;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.BitmapExchangeDrawable;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.activity.dialog.WaitingDialog;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class PaintingUploadActivity extends Activity{
+	ImageView paintingView;
+	Button creationDateButton;
+	Button okButton;
+	Button cancelButton;
+	Button categoryButton;
+	EditText paintingnameText;
+	EditText heightText;
+	EditText widthText;
+	TextView uploader;
+	EditText introductionText;
+	EditText authorText;
+	int user_id;
+	String username;
+	Bitmap bm;
+	Boolean isSetBm=false;
+	Boolean isSetDate=false;
+	String paintingname;
+	String height;
+	String width;
+	String introduction;
+	String date;
+	String category;
+	String author;
+	WaitingDialog dialog;
+	String picturePath;
+	
+	final static int PICTURE=11;
+	final static int CAMERA=10;
+	
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_painting_upload);
+		
+		Intent intent=getIntent();
+		user_id=intent.getIntExtra("user_id", 0);
+		username=intent.getStringExtra("username");
+		
+		paintingView=(ImageView)findViewById(R.id.image);
+		okButton=(Button)findViewById(R.id.okbutton);
+		cancelButton=(Button)findViewById(R.id.cancel);
+		creationDateButton=(Button)findViewById(R.id.creation_date);
+		categoryButton=(Button)findViewById(R.id.category);
+		
+		paintingnameText=(EditText)findViewById(R.id.paintingname);
+		heightText=(EditText)findViewById(R.id.height);
+		widthText=(EditText)findViewById(R.id.width);
+		authorText=(EditText)findViewById(R.id.author);
+		introductionText=(EditText)findViewById(R.id.paintingintroduction);
+		
+		uploader=(TextView)findViewById(R.id.uploader);
+		
+		uploader.setText(username);
+		cancelButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				PaintingUploadActivity.this.finish();
+				
+			}
+		});
+		
+		dialog=new WaitingDialog(PaintingUploadActivity.this);
+		dialog.createDialog();
+        
+		creationDateButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Calendar c = Calendar.getInstance();
+
+				new DatePickerDialog(PaintingUploadActivity.this,
+						new DatePickerDialog.OnDateSetListener() {
+
+							@Override
+							public void onDateSet(DatePicker view, int year,
+									int monthOfYear, int dayOfMonth) {
+
+								
+								creationDateButton.setText(year + "-" + monthOfYear
+										+ "-" + dayOfMonth);
+								date=year + "-" + monthOfYear
+										+ "-" + dayOfMonth;
+								isSetDate=true;
+							}
+						}, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c
+								.get(Calendar.DAY_OF_MONTH)).show();
+			}
+		});
+		okButton.setOnClickListener(new OnClickListener() {
+			
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onClick(View arg0) {
+		 paintingname=paintingnameText.getText().toString();
+		 width=widthText.getText().toString();
+		 height=heightText.getText().toString();
+		 introduction=introductionText.getText().toString();
+		 author=authorText.getText().toString();
+		 if( isSetBm && isSetDate &&(StringUtils.isNotBlank(paintingname))
+				 && (StringUtils.isNotBlank(width))&&(StringUtils.isNotBlank(height))
+				 &&(StringUtils.isNotBlank(introduction))&&(StringUtils.isNotBlank(category))
+				 &&(StringUtils.isNotBlank(author))){
+			 Map<String,Object> map=new HashMap<String,Object>();
+			 map.put("pic_name", paintingname);
+			 map.put("name",date+".jpeg");
+			 map.put("user_id", user_id);
+			 map.put("category", category);
+			 map.put("author", author);
+			 map.put("introduction", introduction);
+			 map.put("date_creation", date);
+			 map.put("high", Integer.parseInt(height));
+			 map.put("width", Integer.parseInt(width));
+			 final UploadPaintingTask task=new UploadPaintingTask();
+			 task.execute(map);
+			 
+			 dialog.show();
+			
+		 }
+		 else{
+			 Toast.makeText(PaintingUploadActivity.this, "请填写完整", Toast.LENGTH_LONG).show();
+		 }
+			}
+		});
+		paintingView.setOnClickListener(new OnClickListener() {
+
+
+			@Override
+			public void onClick(View v) {
+				final AlertDialog.Builder builder = new Builder(
+						PaintingUploadActivity.this);
+				builder.setItems(
+						getResources().getStringArray(
+								R.array.PaintingItemsArray),
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int position) {
+								switch (position) {
+								case 0: {
+									Intent picture = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+									startActivityForResult(picture, PICTURE);
+								}
+									break;
+								case 1: {
+									Intent intent = new Intent(
+											"android.media.action.IMAGE_CAPTURE");
+									intent.putExtra(
+											MediaStore.EXTRA_OUTPUT,
+											Uri.fromFile(new File(
+													Environment
+															.getExternalStorageDirectory(),
+													"camera.jpg")));
+									intent.putExtra(
+											MediaStore.EXTRA_VIDEO_QUALITY, 0);
+									startActivityForResult(intent, CAMERA);
+								}
+									break;
+								
+								default:
+									builder.show().dismiss();
+								}
+							}
+						});
+				builder.show();
+
+			}
+		});
+	
+		categoryButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				final AlertDialog.Builder builder=new Builder(PaintingUploadActivity.this);
+				builder.setItems(getResources().getStringArray(R.array.CategoryArray), new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int position) {
+						if(position<5){
+							category=(position==0)?"figure":
+								((position==1)?"mountain":((position==2)?"bird"
+										:((position==3)?"insect":"others")));
+						String	category_CN=category.equals("figure")?"人物":(category.equals("mountain")?"风景":
+								(category.equals("bird")?"鸟兽":(category.equals("insect")?"虫鱼":
+									"其他")));
+							categoryButton.setText(category_CN);
+							
+						}
+						else{
+							builder.show().dismiss();
+						}
+						
+					}
+
+					
+				});
+				builder.show();
+				
+			}
+		});
+	}
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == CAMERA && resultCode == Activity.RESULT_OK) {
+			Drawable drawable = Drawable.createFromPath(new File(Environment
+					.getExternalStorageDirectory(), "camera.jpg")
+					.getAbsolutePath());
+			bm = BitmapExchangeDrawable.drawableToBitmap(drawable);
+			System.out.println("data-->" + data);
+			isSetBm=true;
+			
+			try {
+				String dir = Environment.getExternalStorageDirectory().getPath();
+			
+
+				LogUtils.v("======================================" + dir);
+				File f = new File(Constant.MainDir);
+
+				if (!f.exists()) {
+					f.mkdir();
+				}
+				File file = new File(Constant.MainDir+"paintingToUpload"+".jpeg");
+				if(file.exists()&& file.isFile()){
+					file.delete();
+					LogUtils.v("file is exist");
+				}
+					
+				OutputStream outStream = new FileOutputStream(file);
+				bm.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+				picturePath=Constant.MainDir+"paintingToUpload"+".jpeg";
+				outStream.flush();
+				outStream.close();
+			} catch (Exception e) {
+				LogUtils.e(e);
+			}
+		} else if (requestCode == PICTURE && resultCode == Activity.RESULT_OK) {
+			Uri selectedImage = data.getData();
+			   String[] filePathColumns={MediaStore.Images.Media.DATA};
+			   Cursor c = this.getContentResolver().query(selectedImage, filePathColumns, null,null, null);
+			   c.moveToFirst();
+			   int columnIndex = c.getColumnIndex(filePathColumns[0]);
+			   picturePath= c.getString(columnIndex);
+			   isSetBm=true;
+			   bm=BitmapFactory.decodeFile(picturePath);
+			   c.close();
+
+//			System.out.println("data2-->" + data);
+//			bm = (Bitmap) data.getExtras().get("data");
+//			paintingView.setImageBitmap(bm);
+//			isSetBm=true;
+			
+		}
+		LogUtils.v("user_id"+user_id);
+       paintingView.setImageBitmap(bm);
+		
+		}
+	
+	class UploadPaintingTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		private int checkCode;
+		private Boolean isSuccess;
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			okButton.setClickable(true);
+			
+			dialog.dismiss();
+			if((checkCode==1)&&isSuccess){
+				Toast.makeText(PaintingUploadActivity.this, "上传成功", Toast.LENGTH_LONG).show();
+				AlertDialog.Builder uSBuilder=new Builder(PaintingUploadActivity.this);
+				uSBuilder.setItems(getResources().getStringArray(R.array.uploadSuccess),new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int position) {
+						switch(position){
+						case 0:{
+							paintingView.setImageResource(R.drawable.ic_launcher);
+							paintingnameText.setText("");
+							widthText.setText("");
+							heightText.setText("");
+							introductionText.setText("");
+							
+							
+						}break;
+						case 1:{
+							Intent homePageIntent=new Intent(PaintingUploadActivity.this,MainActivity.class);
+							startActivity(homePageIntent);
+							PaintingUploadActivity.this.finish();
+							
+						}break;
+						}
+						
+					}
+				});
+				uSBuilder.show();
+				
+			}
+			else{
+				Toast.makeText(PaintingUploadActivity.this, "上传失败", Toast.LENGTH_LONG).show();
+			}
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+
+			MultipartEntity postEntity = new MultipartEntity();
+			postEntity.addPart(
+					"picture",
+					new FileBody(new File(picturePath)));
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				postEntity.addPart("json", new StringBody(json.toString()));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				MyHttpClient.getInstance().post(Constant.Painting.UPLOAD,
+						postEntity, new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if ((json != null)
+										&& (json.optInt("code") == 1)) {
+									JSONObject ret = json.optJSONObject("result");
+									isSuccess=ret.optBoolean("success");
+									checkCode = json.optInt("code");
+								}
+								return json;
+							}
+
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+		
+	}
+
+}

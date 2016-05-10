@@ -1,0 +1,499 @@
+package com.vgpt.androidpaintings.compoent.activity.paintings;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.base.MyActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.entity.MyPaintingItem;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class MyPaintingShowActivity extends MyActivity{
+	
+	ImageView image;
+	Button showCommentBt,preBt,nextBt,auctionBt;
+	TextView authorText,uploadDateText,createDateText
+	,sizeText,introductionText,identificationText,pic_nameText,priceText;
+	int user_id,pic_id;
+	String pic_name;
+	int listPosition;
+	ArrayList<Integer> pic_idList;
+	final static int SIZE=5;
+	int page=1;
+	boolean isWorking=false;
+	Boolean is_auction=false;
+	@SuppressLint("UseSparseArrays")
+	Map<Integer,JSONObject> positionMap=new HashMap<Integer, JSONObject>();
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.fragment_mypainting_item_show);
+		
+		initView();
+		
+		Intent intent=getIntent();
+	    pic_idList = intent.getIntegerArrayListExtra("pic_idList");
+		listPosition=intent.getIntExtra("listPosition", 0);
+		listPosition = intent.getIntExtra("listPosition", 0);
+		
+		if(pic_name!=null){
+			pic_nameText.setText(pic_name);
+		}
+		
+		if(is_auction){
+			auctionBt.setVisibility(View.INVISIBLE);
+		}
+		
+		if((user_id!=0)&&(pic_id!=0)){
+			
+			Map<String,Object> map=new HashMap<String,Object>();
+			map.put("user_id", user_id);
+			map.put("pic_id", pic_id);
+			GetMyPaintingTask task=new GetMyPaintingTask();
+			task.execute(map);
+			
+			Picasso.with(MyPaintingShowActivity.this)
+			.load(Constant.Painting.GET_PICTURE+pic_id).into(image);
+		
+		}
+		
+		auctionBt.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				AlertDialog.Builder builder=new Builder(MyPaintingShowActivity.this);
+				builder.setTitle("发起拍卖");
+				View view=getLayoutInflater().inflate(R.layout.set_auction_dialog, null);
+				final EditText et=(EditText)view.findViewById(R.id.set_price);
+				builder.setView(view);
+				builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						priceText.setText("当前价格（￥）："+et.getText());
+						
+						Calendar c=Calendar.getInstance();
+						int year=c.get(Calendar.YEAR);
+						int month=c.get(Calendar.MONTH);
+						int day=c.get(Calendar.DAY_OF_MONTH);
+						String date=year+"-"+month+"-"+day;
+						Map<String,Object> map=new HashMap<String, Object>();
+						map.put("pic_id", pic_id);
+						map.put("start_price", Integer.parseInt(et.getText().toString()));
+						map.put("begin", date);
+						SetAuctionTask sat=new SetAuctionTask();
+						sat.execute(map);
+						Toast.makeText(MyPaintingShowActivity.this, date, Toast.LENGTH_LONG).show();
+						
+					}
+				});
+				builder.setNegativeButton("取消", null);
+				builder.show();
+				
+				
+				
+				
+				
+				
+				
+				
+			}
+		});
+		
+		image.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				
+				Intent imageIntent=new Intent(MyPaintingShowActivity.this,PictureChangeSizeShowActivity.class);
+				imageIntent.putExtra("url", Constant.Painting.GET_PICTURE+pic_id);
+				startActivity(imageIntent);
+				
+			}
+		});
+		
+		showCommentBt.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				Intent comIntent=new Intent(MyPaintingShowActivity.this,CommentPageActivity.class);
+				comIntent.putExtra("pic_id", pic_id);
+				comIntent.putExtra("user_id", user_id);
+				startActivity(comIntent);
+				
+				
+			}
+		});
+		
+		preBt.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(listPosition>0){
+					listPosition--;	
+				
+				
+				
+					pic_id=pic_idList.get(listPosition);
+					
+					if(positionMap.get(listPosition)!=null){
+						openJSONObject(positionMap.get(listPosition));
+						
+					}else{
+						preBt.setClickable(false);
+						nextBt.setClickable(false);
+						getPaintingInfo(user_id, pic_id);
+						
+					}
+					
+					Picasso.with(MyPaintingShowActivity.this)
+					.load(Constant.Painting.GET_PICTURE+pic_id).into(image);
+					if(listPosition==0){
+						v.setClickable(false);
+						
+					}
+					
+				 }
+				
+				else{
+					Toast.makeText(MyPaintingShowActivity.this, "已经是第一页了", Toast.LENGTH_LONG).show();
+					
+				}
+			}
+		});
+		
+		nextBt.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				listPosition++;
+				if(listPosition<pic_idList.size()){
+                    pic_id=pic_idList.get(listPosition);
+                    
+					if(!preBt.isClickable()){
+						preBt.setClickable(true);
+					}
+					if(positionMap.get(listPosition)!=null){
+						openJSONObject(positionMap.get(listPosition));
+					}else{
+						nextBt.setClickable(false);
+						nextBt.setClickable(false);
+						getPaintingInfo(user_id, pic_id);
+						
+					}
+					
+					Picasso.with(MyPaintingShowActivity.this)
+					.load(Constant.Painting.GET_PICTURE+pic_id).into(image);
+				}
+				else if(page!=0){
+					nextBt.setClickable(false);
+					preBt.setClickable(false);
+					Map<String,Object> getIdMap=new HashMap<String, Object>();
+					getIdMap.put("user_id",user_id);
+					getIdMap.put("page", ++page);
+					getIdMap.put("size", SIZE);
+					GetMyUploadTask getIdtask=new GetMyUploadTask();
+					getIdtask.execute(getIdMap);
+					
+					
+					
+					
+				}
+					
+				
+			}
+		});
+		
+	}
+
+	public void initView() {
+		image=(ImageView)findViewById(R.id.myImage);
+		showCommentBt=(Button)findViewById(R.id.showcomment);
+		authorText=(TextView)findViewById(R.id.author);
+		uploadDateText=(TextView)findViewById(R.id.date_on);
+		createDateText=(TextView)findViewById(R.id.date_creation);
+		sizeText=(TextView)findViewById(R.id.size);
+		introductionText=(TextView)findViewById(R.id.introduction);
+		identificationText=(TextView)findViewById(R.id.identification);
+		pic_nameText=(TextView)findViewById(R.id.pic_name);
+		auctionBt=(Button)findViewById(R.id.set_auction);
+		priceText=(TextView)findViewById(R.id.current_price);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void getPaintingInfo(int user_id,int pic_id){
+		Map<String,Object> map=new HashMap<String,Object>();
+		map.put("user_id", user_id);
+		map.put("pic_id", pic_id);
+		GetMyPaintingTask task=new GetMyPaintingTask();
+		task.execute(map);
+		
+		
+	}
+	public boolean openJSONObject(JSONObject json){
+		
+		authorText.setText(json.optString("author"));
+		uploadDateText.setText(json.optString("date_on"));
+		createDateText.setText(json.optString("date_creation"));
+		introductionText.setText(json.optString("introduction"));
+		sizeText.setText("高:"+json.optInt("height")+" 宽:"+json.optInt("width"));
+		pic_nameText.setText(json.optString("name"));
+		identificationText.setText(json.optBoolean("identification")?"是":"否");
+		return true;
+		
+	}
+	
+	
+	class GetMyPaintingTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		
+		JSONObject ret;
+		int checkCode;
+		
+
+		@SuppressLint("UseSparseArrays")
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			if(ret!=null && checkCode==1){
+				
+				authorText.setText(ret.optString("author"));
+				uploadDateText.setText(ret.optString("date_on"));
+				createDateText.setText(ret.optString("date_creation"));
+				introductionText.setText(ret.optString("introduction"));
+				sizeText.setText("高:"+ret.optInt("height")+" 宽:"+ret.optInt("width"));
+				pic_nameText.setText(ret.optString("name"));
+				identificationText.setText(ret.optBoolean("identification")?"是":"否");
+				
+				positionMap.put(listPosition, ret);
+				
+				
+			}
+			preBt.setClickable(true);
+			nextBt.setClickable(true);
+		}
+
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl=MyHttpClient.getInstance();
+			
+			List<NameValuePair> list=new ArrayList<NameValuePair>();
+			
+			JSONObject json=new JSONObject(params[0]);
+			
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			
+			list.add(pa);
+			
+			try{
+				cl.post(Constant.Painting.PAINTING_SHOW, list, 
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if(json!=null && json.optInt("code")==1){
+									checkCode=json.optInt("code");
+									ret=json.optJSONObject("result");
+									
+								}
+								return json;
+							}
+						});
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			
+			return json;
+		}
+		
+	}
+	
+class GetMyUploadTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		
+		private int checkCode;
+		private JSONArray ret;
+		private boolean nofound=false;
+		
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			if((checkCode==1)&&(ret!=null)&&(!nofound)){
+				for(int i=0;i<ret.length();i++){
+					JSONObject jsonItem= ret.optJSONObject(i);
+					if(i==0){
+						pic_id=jsonItem.optInt("pic_id");
+						getPaintingInfo(user_id, pic_id);
+						Picasso.with(MyPaintingShowActivity.this)
+						.load(Constant.Painting.GET_PICTURE+pic_id).into(image);
+						
+					}
+					pic_idList.add(jsonItem.optInt("pic_id"));
+					
+					
+				}
+			}
+			else if(nofound){
+				Toast.makeText(MyPaintingShowActivity.this, "无更多上传书画", Toast.LENGTH_LONG).show();
+			}
+		}
+
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+
+
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Search.FIND_MYPIC, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								checkCode = json.optInt("code");
+								if (json != null && json.optInt("code") == 1) {
+									ret=json.optJSONArray("result");
+									nofound=json.optBoolean("no_found");
+									
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+			
+		}
+		
+	}
+    class SetAuctionTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+    	
+    	private int checkCode;
+    	private JSONObject ret;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Painting.SET_AUCTION, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null){
+									checkCode=json.optInt("code");
+								
+									if(checkCode == 1) {
+									ret = json.optJSONObject("result");
+								}
+									}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+
+				LogUtils.e(e);
+
+			}
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			if(checkCode==1){
+				if(ret.optBoolean("success")){
+					Toast.makeText(MyPaintingShowActivity.this, "发起拍卖成功", Toast.LENGTH_LONG).show();
+					priceText.setVisibility(View.VISIBLE);
+				}
+			}
+		}
+    	
+    }
+	@Override
+	public void findView() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void prepareData() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addListener() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showContent() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	
+	
+	
+
+}

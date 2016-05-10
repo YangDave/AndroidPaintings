@@ -1,0 +1,122 @@
+package com.vgpt.androidpaintings.compoent.fragment;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.activity.SignInActivity;
+import com.vgpt.androidpaintings.compoent.activity.SignUpActivity;
+import com.vgpt.androidpaintings.compoent.activity.paintings.PaintingUploadActivity;
+
+/**
+ * @author Charles
+ * TODO 期刊
+ *
+ */
+public class Fragment2 extends Fragment {
+	OnBackListener mListener;
+	int user_id=MainActivity.user_id;
+	String username=MainActivity.username;
+
+	public interface OnBackListener {
+		public void backEvent();
+	}
+	
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (OnBackListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+        }
+    }
+
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		View parentView = inflater.inflate(R.layout.fragment2, container, false);
+		Button backBtn = (Button)parentView.findViewById(R.id.button1);
+		Button toOtherActivityBtn = (Button)parentView.findViewById(R.id.button2);
+		
+		Button play=(Button)parentView.findViewById(R.id.playId);
+		Button stop=(Button)parentView.findViewById(R.id.stopId);
+		Button uploadButton=(Button)parentView.findViewById(R.id.uploadButton);
+		ImageView picList=(ImageView)parentView.findViewById(R.id.imageViewId);
+		final AnimationDrawable anim=(AnimationDrawable)picList.getDrawable();
+		
+		uploadButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				if(user_id!=0){
+					Intent uploadIntent=new Intent(getActivity(),PaintingUploadActivity.class);
+					uploadIntent.putExtra("user_id", user_id);
+					uploadIntent.putExtra("username", username);
+					startActivity(uploadIntent);
+				}
+				else{
+					Intent uploadIntent=new Intent(getActivity(),SignInActivity.class);
+					startActivity(uploadIntent);
+					getActivity().finish();
+				}
+			}
+		});
+		
+		play.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				
+				anim.start();
+				
+			}
+		});
+		stop.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				anim.stop();
+				
+			}
+		});
+		
+		
+		backBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(mListener!=null)mListener.backEvent();
+			}
+		});
+		
+		toOtherActivityBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent=new Intent();
+				SignUpActivity.dispplayMyself(intent, getActivity());
+				
+			}
+		});
+		
+		return parentView;
+	}
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:padding="15dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    
+    
+    <EditText 
+        android:id="@+id/edit_title"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:singleLine="true"
+        android:background="@drawable/shape_edittext"
+        android:hint="@string/input_notice_theme"/>
+    
+    <EditText 
+        android:id="@+id/edit_content"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:background="@drawable/shape_edittext"
+        android:hint="@string/input_notice_content"
+        android:gravity="top|left"
+        android:lines="5"/>
+    
+
+</LinearLayout>

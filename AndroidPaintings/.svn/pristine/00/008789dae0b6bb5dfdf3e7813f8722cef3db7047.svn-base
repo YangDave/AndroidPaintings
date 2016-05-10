@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="focused_asso">关注的协会</string>
+    <string name="asso_list">全部的协会</string>
+    <string name="asso_joined">加入的协会</string>
+    
+    <string name="asso_focus">关注</string>
+    
+    <string name="asso_create">协会创建</string>
+    
+    <string name="asso_chairman">协会主席</string>
+    <string name="asso_organizor">组织者</string>
+    
+    <string name="asso_create_success">协会创建成功</string>
+    
+    <string name="asso_create_fail">协会创建失败</string>
+    
+    <string name="asso_notice">协会公告</string>
+    <string name="asso_notice_create">发布通知</string>
+    
+    <string name="input_notice_theme">请输入通知标题</string>
+    <string name="input_notice_content">请输入通知内容</string>
+    <string name="notice_create_dialog">创建通知</string>
+    
+    <string name="need_finish">需要完成</string>
+    
+    <string name="asso_info_name">协会名称:</string>
+    <string name="asso_info_creater">创始人:</string>
+    <string name="asso_info_chairman">现任会长:</string>
+    <string name="asso_info_create_time">创建时间:</string>
+    <string name="asso_info_introduction">协会介绍:</string>
+    
+    <string name="asso_info_modify">修改协会信息</string>
+    <string name="asso_info_title">协会信息</string>
+    
+    <string name="maneuver_issuer">发布人</string>
+    <string name="maneuver_organizer">组织者</string>
+    <string name="maneuver_place">地点</string>
+    <string name="maneuver_create_date">发布时间</string>
+    <string name="maneuver_start_date">开始时间</string>
+    <string name="maneuver_over_date">结束时间</string>
+    <string name="maneuver_joined_member">参与者</string>
+    <string name="to_join_maneuver">我要报名</string>
+    <string name="check_joined_name_list">查看报名成员列表</string>
+    
+    <string name="maneuver_add">协会活动创建</string>
+    
+    <string name="exer_title">活动主题:</string>
+    <string name="exer_body">活动内容:</string>
+    <string name="exer_place">活动地点:</string>
+    <string name="exer_begin">开始时间:</string>
+    <string name="exer_end">结束时间:</string>
+    <string name="exer_pic">活动展示:</string>
+</resources>

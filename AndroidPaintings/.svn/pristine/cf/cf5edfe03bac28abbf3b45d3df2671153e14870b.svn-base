@@ -1,0 +1,257 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    
+
+<LinearLayout 
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    
+    <RelativeLayout 
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/drak">
+        <TextView 
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textColor="@color/white"
+            android:layout_centerVertical="true"
+            android:textSize="25sp"
+            android:text="@string/user_center"/>
+    </RelativeLayout>
+    
+    <RelativeLayout 
+        android:layout_height="150dp"
+        android:layout_width="match_parent"
+        >
+        <ImageView 
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:scaleType="fitXY"
+            android:background="#e0000000"
+            android:src="@drawable/pic1"
+            />
+        <ImageView 
+        android:id="@+id/image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_launcher"
+        android:clickable="true"
+       android:layout_centerInParent="true"
+        
+        />
+        
+        
+    </RelativeLayout>
+    
+
+    <Button 
+        android:id="@+id/changeId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="修改"
+        android:visibility="gone"
+        android:layout_marginRight="20dp"
+        android:textAppearance="?android:attr/textAppearanceButton"/>
+    
+    <TableLayout android:layout_width="match_parent"
+        
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:shrinkColumns="0"
+        android:stretchColumns="1">
+        <TableRow >
+            <TextView 
+                
+                android:text="真实姓名："
+                android:textSize="18sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <TextView 
+                android:id="@+id/realname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:clickable="true"
+                />
+        </TableRow>
+        <TableRow android:layout_marginTop="5dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="性       别："
+                android:textSize="18sp" />
+            <TextView 
+                android:id="@+id/sex"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+               
+                android:textSize="18sp"/>
+               
+        </TableRow>
+        
+        <TableRow android:layout_marginTop="5dp">
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="手机号码："
+                android:textSize="18sp"/>
+            <TextView 
+                android:id="@+id/phone"
+                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                
+                android:textSize="18sp"/>
+        </TableRow>
+        <TableRow 
+            android:layout_marginTop="5dp">
+            <TextView 
+                
+                android:text="年       龄："
+                android:textSize="18sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <TextView 
+                android:id="@+id/age"
+                
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                />
+        </TableRow>
+        
+         <TableRow android:paddingTop="5dp">
+            <TextView 
+                
+                android:text="出生日期："
+                android:textSize="18sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <TextView 
+                android:id="@+id/birthday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                />
+        </TableRow>
+        <TableRow android:layout_marginTop="5dp">
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="地        址："
+                android:textSize="18sp"/>
+            
+            <TextView 
+                android:id="@+id/address"
+               android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+              
+                android:lines="2"
+                android:textSize="18sp" />
+        </TableRow>
+        
+        <TableRow android:layout_marginTop="5dp">
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="个人简介："
+                android:textSize="18sp"/>
+            
+            <TextView 
+                android:id="@+id/introduction"
+               android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp" />
+        </TableRow>
+    </TableLayout>
+    
+    
+    
+   <Button 
+       android:id="@+id/collectButton"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent"
+       android:background="@drawable/shape_rectangle"
+       android:gravity="center_vertical"
+       android:paddingLeft="15dp"
+       android:textColor="@color/title"
+       android:text="@string/my_collect"/>
+   
+    <Button 
+       android:id="@+id/myfoucusButton"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent"
+       android:textColor="@color/title"
+       android:gravity="center_vertical"
+       android:paddingLeft="15dp"
+       android:layout_gravity="left"
+       android:background="@drawable/shape_rectangle"
+       android:text="@string/my_focus"/>
+     <Button 
+       android:id="@+id/infoButton"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent"
+       android:textColor="@color/title"
+       android:gravity="center_vertical"
+       android:paddingLeft="15dp"
+       android:layout_gravity="left"
+       android:background="@drawable/shape_rectangle"
+       android:text="@string/user_info"/>
+    
+    <Button 
+       android:id="@+id/settingsButton"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent"
+       android:gravity="center_vertical"
+       android:textColor="@color/title"
+       android:paddingLeft="15dp"
+       android:background="@drawable/shape_rectangle"
+       android:text="@string/action_settings"/>
+    
+      <Button 
+       android:id="@+id/aboutButton"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent"
+       android:gravity="center_vertical"
+       android:textColor="@color/title"
+       android:paddingLeft="15dp"
+       android:background="@drawable/shape_rectangle"
+       android:text="@string/about"/>
+    
+    <Button 
+        android:id="@+id/quitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/quitUser"/>
+    <Button 
+        android:id="@+id/myupload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/myupload"/>
+    <Button 
+        android:id="@+id/safeCenter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/safecenter"/>
+    
+    <Button 
+        android:id="@+id/mycomment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/mycomment"/>
+   
+   
+    
+</LinearLayout>
+</ScrollView>

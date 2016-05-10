@@ -1,0 +1,13 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+public class UserFocus {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

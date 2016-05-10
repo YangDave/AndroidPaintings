@@ -1,0 +1,296 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+
+import org.apache.commons.lang.StringUtils;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTabHost;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.TabHost.TabSpec;
+import android.widget.Toast;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.compoent.activity.paintings.PaintingUploadActivity;
+import com.vgpt.androidpaintings.compoent.fragment.Fragment1;
+import com.vgpt.androidpaintings.compoent.fragment.Fragment2;
+import com.vgpt.androidpaintings.compoent.fragment.Fragment2.OnBackListener;
+import com.vgpt.androidpaintings.compoent.fragment.Fragment3;
+import com.vgpt.androidpaintings.compoent.fragment.Fragment4;
+import com.vgpt.androidpaintings.utils.DeviceUtil;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+
+public class MainActivity extends FragmentActivity implements OnBackListener,OnGestureListener
+ {
+	final int QUIT=50;
+	final int UPLOAD=16;
+	final int FLIP_DISTANCE=50;
+	public static int user_id=0;
+	SharedPreferences preference;
+	SharedPreferences.Editor editor;
+	public static String sex;
+	public static String name;
+	public static String phone;
+	public static String birthday;
+	public static String address;
+	public static String age;
+	public static String username;
+	
+	
+	
+	SharedPreferences signInRecord;
+	SharedPreferences.Editor signInRecordEditor;
+
+	// 瀹氫箟FragmentTabHost瀵硅薄
+	private FragmentTabHost mTabHost;
+	private RadioGroup mTabRg;
+
+	@SuppressWarnings("rawtypes")
+	private final Class[] fragments = { Fragment1.class, Fragment2.class,
+			Fragment3.class, Fragment4.class };
+	
+	
+	
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		
+		DeviceUtil.bePortrait(MainActivity.this);
+//		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);   
+		super.onCreate(savedInstanceState);
+//		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.activity_main);
+		/*
+		 * 设置自定义标题栏
+		 */
+		
+		
+		DeviceUtil.bePortrait(MainActivity.this);
+		initView();
+		ExitApplication.getInstance().addActivity(this);
+		
+//		GetCurrentUser gcu =new GetCurrentUser();
+//		int usertestId = gcu.getUserId();
+//		LogUtils.v("==================user=========="+usertestId);
+		
+		Intent intent=getIntent();
+		username=intent.getStringExtra("username");
+		
+		if(StringUtils.isNotBlank(username)){
+		user_id=(Integer)intent.getIntExtra("user_id", 0);
+
+		}
+		else{
+			signInRecord=getSharedPreferences("signInRecord", MODE_PRIVATE);
+			username=signInRecord.getString("lastSignInUser", null);
+			user_id = signInRecord.getInt("lastSignInUserId", 0);
+			LogUtils.v("=============user_id========="+user_id);
+			preference=getSharedPreferences(username, MODE_PRIVATE);
+			
+			
+		} 
+		//如果本地未保存username
+		if(StringUtils.isBlank(username)){
+			Intent signInIntent=new Intent(getApplicationContext(),SignInActivity.class);
+			startActivity(signInIntent);
+			this.finish();
+		}
+//		else{
+//		Toast.makeText(MainActivity.this, username+"id为"+user_id+"登录成功",Toast.LENGTH_LONG).show();
+//		}
+	}
+	
+	private void initView() {
+		mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
+		mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
+		// 寰楀埌fragment鐨勪釜鏁�
+		int count = fragments.length;
+		for (int i = 0; i < count; i++) {
+			// 涓烘瘡涓�釜Tab鎸夐挳璁剧疆鍥炬爣銆佹枃瀛楀拰鍐呭
+			TabSpec tabSpec = mTabHost.newTabSpec(i + "").setIndicator(i + "");
+			// 灏員ab鎸夐挳娣诲姞杩汿ab閫夐」鍗′腑
+			mTabHost.addTab(tabSpec, fragments[i], null);
+		}
+
+		mTabRg = (RadioGroup) findViewById(R.id.tab_rg_menu);
+		mTabRg.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				switch (checkedId) {
+				case R.id.tab_rb_1:
+					mTabHost.setCurrentTab(0);
+					break;
+				case R.id.tab_rb_2:
+					mTabHost.setCurrentTab(1);
+
+					break;
+				case R.id.tab_rb_3:
+
+					mTabHost.setCurrentTab(2);
+					break;
+				case R.id.tab_rb_4:
+
+					mTabHost.setCurrentTab(3);
+					break;
+
+				default:
+					break;
+				}
+			}
+		});
+
+		mTabHost.setCurrentTab(0);
+	}
+
+	@Override
+	public void onBackPressed() {
+		
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		int id = item.getItemId();
+		switch(id){
+		case R.id.action_exit:
+			MainActivity.this.finish();
+			System.exit(0);
+			ExitApplication.getInstance().exit();
+			break;
+		case R.id.action_settings:
+			Toast toast=Toast.makeText(MainActivity.this, "setting is work", Toast.LENGTH_LONG);
+			toast.show();
+			break;
+		case R.id.action_search:
+			Intent searchIntent=new Intent(MainActivity.this,SearchActivity.class);
+			searchIntent.putExtra("user_id", MainActivity.user_id);
+			startActivity(searchIntent);
+			break;
+		case R.id.action_upload:
+			if(user_id!=0){
+				Intent uploadIntent=new Intent(MainActivity.this,PaintingUploadActivity.class);
+				uploadIntent.putExtra("user_id", user_id);
+				uploadIntent.putExtra("username", username);
+				Toast.makeText(MainActivity.this, "跳转上传", Toast.LENGTH_LONG).show();
+				startActivity(uploadIntent);
+			}
+			else{
+				Intent uploadIntent=new Intent(MainActivity.this,SignInActivity.class);
+				startActivity(uploadIntent);
+				this.finish();
+			}
+		}
+		return super.onMenuItemSelected(featureId, item);
+		
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if((keyCode==KeyEvent.KEYCODE_BACK)&&(event.getRepeatCount()==0)){
+			final AlertDialog.Builder builder=new Builder(MainActivity.this);
+			builder.setTitle("系统消息");
+			builder.setMessage("确定退出？");
+			builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					
+					MainActivity.this.finish();
+					System.exit(0);
+					ExitApplication.getInstance().exit();
+					
+				}
+			});
+			builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					
+					builder.show().dismiss();
+					
+				}
+			});
+			builder.show();
+			
+		}
+		return super.onKeyDown(keyCode, event);
+		
+	}
+
+	@Override
+	public void backEvent() {
+		
+		
+		MainActivity.this.finish();
+		System.exit(QUIT);
+		Toast.makeText(this, "back", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public boolean onDown(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		 
+
+		return false;
+	}
+
+	@Override
+	public void onLongPress(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2,
+			float arg3) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void onShowPress(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent arg0) {
+		return super.onTouchEvent(arg0);
+	}
+
+
+}

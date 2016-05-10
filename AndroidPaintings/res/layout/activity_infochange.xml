@@ -1,0 +1,127 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        style="@style/self_title_bar_layout" >
+
+        <Button
+            android:id="@+id/cancelInfoChange"
+            android:background="@drawable/cancel"
+            style="@style/self_title_bar_button"
+            android:layout_alignParentLeft="true"
+             />
+        
+        <Button
+            android:id="@+id/okinfoChange"
+            android:background="@drawable/done"
+            android:layout_alignParentRight="true"
+            android:layout_alignBaseline="@id/cancelInfoChange"
+            style="@style/self_title_bar_button"
+             />
+        
+         <TextView 
+            android:layout_toLeftOf="@id/okinfoChange"
+            style="@style/self_title_bar_title"
+            android:layout_toRightOf="@id/cancelInfoChange"
+            android:layout_alignBaseline="@id/cancelInfoChange"
+            android:text="@string/edit_info"
+            />
+    </RelativeLayout>
+
+    <TableLayout
+        style="@style/global_linearlayout"
+        android:shrinkColumns="0"
+        android:stretchColumns="1" >
+
+        <TableRow style="@style/user_info_tablerow" >
+
+            <TextView
+                style="@style/user_info_column_black"
+                android:text="@string/name" />
+
+            <EditText
+                android:id="@+id/namechange"
+                style="@style/user_info"
+                android:singleLine="true" />
+        </TableRow>
+
+        <TableRow style="@style/user_info_tablerow"  >
+
+            <TextView
+                android:text="@string/sex"
+                style="@style/user_info_column_black" />
+
+            <RadioGroup
+                android:id="@+id/sexgroup"
+                android:layout_gravity="start"
+                android:orientation="horizontal" >
+
+                <RadioButton
+                    android:id="@+id/male"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/male" />
+
+                <RadioButton
+                    android:id="@+id/female"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/female" />
+            </RadioGroup>
+        </TableRow>
+
+        <TableRow style="@style/user_info_tablerow" >
+
+            <TextView
+                android:text="@string/phone"
+                style="@style/user_info_column_black" />
+
+            <EditText
+                android:id="@+id/phonechange"
+                android:inputType="number"
+                android:singleLine="true"
+                style="@style/user_info" />
+        </TableRow>
+
+        <TableRow style="@style/user_info_tablerow">
+
+            <TextView
+                android:text="@string/age"
+                style="@style/user_info_column_black" />
+
+            <EditText
+                android:id="@+id/agechange"
+                android:inputType="number"
+                android:singleLine="true"
+                style="@style/user_info" />
+        </TableRow>
+
+        <TableRow style="@style/user_info_tablerow">
+
+            <TextView
+                android:text="@string/birthday"
+                style="@style/user_info_column_black" />
+
+            <EditText
+                android:id="@+id/birthdaychange"
+                android:inputType="date"
+                style="@style/user_info" />
+        </TableRow>
+
+        <TableRow style="@style/user_info_tablerow" >
+
+            <TextView
+                android:text="@string/introduction"
+                style="@style/user_info_column_black" />
+
+            <EditText
+                android:id="@+id/selfintroduction"
+                android:singleLine="true"
+                style="@style/user_info" />
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>

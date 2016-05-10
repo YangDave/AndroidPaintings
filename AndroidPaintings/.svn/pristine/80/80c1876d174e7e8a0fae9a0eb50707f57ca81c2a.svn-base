@@ -1,0 +1,420 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.InputType;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.compoent.activity.dialog.WaitingDialog;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.DeviceUtil;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class SignUpActivity extends Activity {
+	EditText muserEditText,mEmailText;
+	EditText mpwdEditText;
+	Button msignUpButton;
+	TextView msignInView;
+	TextView mreminderText;
+	ToggleButton mtoggleButton;
+	SharedPreferences preference;
+	SharedPreferences.Editor editor;
+	SharedPreferences signInRecord;
+	SharedPreferences.Editor signInRecordEditor;
+	WaitingDialog dialog;
+	
+	String username;
+
+	public static void dispplayMyself(Intent intent, Activity a) {
+		intent.setClass(a, SignUpActivity.class);
+		a.startActivity(intent);
+
+	}
+
+	public static boolean isEmailAddressFormat(String email) {
+		boolean isExist = false;
+		Pattern pp = Pattern
+				.compile("^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$");
+		Matcher mm = pp.matcher(email);
+		boolean bb = mm.matches();
+		if (bb) {
+			isExist = true;
+		}
+		return isExist;
+
+	}
+
+	private static boolean isUserNameOrPwdFormat(String userNameOrPwd) {
+		boolean isUserNameOrPwd = false;
+		Pattern p = Pattern.compile("^[a-zA-Z0-9_-]+");
+		Matcher m = p.matcher(userNameOrPwd);
+		boolean b = m.matches();
+		if (b && userNameOrPwd.length() >= 6 && userNameOrPwd.length() <= 16) {
+			isUserNameOrPwd = true;
+		}
+
+		return isUserNameOrPwd;
+
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		DeviceUtil.bePortrait(SignUpActivity.this);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);//取消标题栏
+		getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN ,
+		             WindowManager.LayoutParams. FLAG_FULLSCREEN);//全屏
+		setContentView(R.layout.activity_signup);
+		ExitApplication.getInstance().addActivity(this);
+		
+		dialog=new WaitingDialog(SignUpActivity.this);
+		dialog.createDialog();
+
+		muserEditText = (EditText) findViewById(R.id.username);
+		mpwdEditText = (EditText) findViewById(R.id.password);
+		mEmailText = (EditText) findViewById(R.id.emailtext);
+		msignUpButton = (Button) findViewById(R.id.signUp);
+		msignInView = (TextView) findViewById(R.id.signIn);
+		
+		mtoggleButton = (ToggleButton) findViewById(R.id.toggle);
+		
+		mtoggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
+				
+				if(checked){
+					mtoggleButton.setBackgroundResource(R.drawable.toggle);
+					mpwdEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				}
+				else{
+					mtoggleButton.setBackgroundResource(R.drawable.toggle2);
+					mpwdEditText.setInputType(InputType.TYPE_CLASS_TEXT);
+				}
+				
+				
+				
+			}
+		});
+		
+		mEmailText.setOnFocusChangeListener(new OnFocusChangeListener() {
+			
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				
+				if(!hasFocus){
+					
+					if(!isEmailAddressFormat(mEmailText.getText().toString())){
+						
+						Toast.makeText(SignUpActivity.this, "不是邮箱格式", Toast.LENGTH_LONG).show();
+					}
+				}
+				
+			}
+		});
+		
+		msignUpButton.setOnClickListener(new OnClickListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onClick(View arg0) {
+				if (isUserNameOrPwdFormat(muserEditText.getText().toString())
+						&& isUserNameOrPwdFormat(mpwdEditText.getText().toString()))
+						 {
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("username", muserEditText.getText());
+					map.put("password", mpwdEditText.getText());
+					map.put("email", mEmailText.getText());
+					SignUpTask signUpTask = new SignUpTask();
+					signUpTask.execute(map);
+					
+					dialog.show();
+					
+					final Handler handler=new Handler(){
+
+						@Override
+						public void handleMessage(Message msg) {
+							super.handleMessage(msg);
+						}
+						
+					};
+					
+					new Thread(){
+
+						@Override
+						public void run() {
+							super.run();
+							try {
+								Thread.sleep(5000);
+								handler.sendEmptyMessage(0);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						
+					}.start();
+					
+				} else {
+					Toast.makeText(SignUpActivity.this, R.string.signupwarn, Toast.LENGTH_LONG).show();
+				}
+
+			}
+		});
+		msignInView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				Intent toSignInIntent = new Intent(SignUpActivity.this,
+						SignInActivity.class);
+
+				startActivity(toSignInIntent);
+				
+			}
+		});
+
+		muserEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus == false) {
+					if (StringUtils.isNotBlank(muserEditText.getText().toString())) {
+						if (isUserNameOrPwdFormat(muserEditText.getText()
+								.toString()) == false) {
+							Toast.makeText(SignUpActivity.this, R.string.userlengthwarn, Toast.LENGTH_LONG).show();
+
+						} else { // used for connect
+								Map<String, Object> usermap = new HashMap<String, Object>();
+								usermap.put("username", muserEditText.getText());
+								SignUpUsernameUniqueTask usernameUniqueTask = new SignUpUsernameUniqueTask();
+								usernameUniqueTask.execute(usermap);
+								
+
+							
+
+						}
+
+					}
+				}
+			}
+		});
+
+		mpwdEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus == false) {
+					if (mpwdEditText.getText().toString().length() != 0 ) {
+
+						if (!isUserNameOrPwdFormat(mpwdEditText.getText()
+								.toString())) {
+
+							Toast.makeText(SignUpActivity.this, R.string.pwdlengthwarn, Toast.LENGTH_LONG).show();
+						} 
+
+						if (mpwdEditText.getText().toString().equals(muserEditText
+								.getText().toString())) {
+							
+							Toast.makeText(SignUpActivity.this, R.string.pwdequalusername, Toast.LENGTH_LONG).show();
+
+							mpwdEditText.requestFocus();
+						}
+					}
+				}
+			}
+
+		});
+		
+		
+	}
+
+	class SignUpTask extends AsyncTask<Map<String, Object>, Void, JSONObject> {
+		private int retUser_id;
+		private int code;
+		private boolean signUpSuccess = false;
+
+		@SuppressLint("UseValueOf") @Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Api.SIGN_UP, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null  ) {
+									code = json.optInt("code");
+									if(code == 1){
+									JSONObject ret = json
+											.optJSONObject("result");
+									signUpSuccess = ret.optBoolean("success");
+									retUser_id = ret.optInt("user_id");
+									}
+
+									
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			if (signUpSuccess) {
+				username=muserEditText.getText().toString();
+				preference=getSharedPreferences(username, MODE_PRIVATE);
+				editor=preference.edit();
+				editor.putString("username",username);
+				editor.putInt("user_id", retUser_id);
+				editor.commit();
+				
+				signInRecord=getSharedPreferences("signInRecord", MODE_PRIVATE);
+				signInRecordEditor=signInRecord.edit();
+				signInRecordEditor.putString("lastSignInUser", username);
+				signInRecordEditor.putInt("lastSignInUserId", retUser_id);
+				signInRecordEditor.commit();
+				
+				Bundle userdata = new Bundle();
+				userdata.putSerializable("username", username);
+				userdata.putSerializable("user_id", retUser_id);
+				Intent intent = new Intent(SignUpActivity.this,
+						MainActivity.class);
+				intent.putExtras(userdata);
+				startActivity(intent);
+				SignUpActivity.this.finish();
+				
+			}
+			else{
+				Toast.makeText(SignUpActivity.this, "注册失败", Toast.LENGTH_LONG).show();
+			}
+
+		}
+
+	}
+
+	class SignUpUsernameUniqueTask extends
+			AsyncTask<Map<String, Object>, Void, JSONObject> {
+		private int checkCode=0;
+		JSONObject ret;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Api.CHECk_USER, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null){
+									checkCode=json.optInt("code");
+								
+									if(json.optInt("code") == 1) {
+									 ret = json
+											.optJSONObject("result");
+
+								}
+									}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+
+
+				LogUtils.e(e);
+
+			}
+
+			return json;
+		}
+
+		
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			boolean	userNameUnique = false;
+			if (checkCode==1) {
+				if (ret != null) {
+
+					userNameUnique = ret.optBoolean(
+							"valid", false);
+				}
+				if(!userNameUnique){
+				Toast.makeText(SignUpActivity.this, R.string.usernameunique, Toast.LENGTH_LONG).show();
+				}
+				else{
+					Toast.makeText(SignUpActivity.this, R.string.connectfalsetitle, Toast.LENGTH_LONG).show();
+				}
+			}
+			
+		}
+
+	}
+}

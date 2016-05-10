@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+
+    <TableLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:stretchColumns="1"
+        android:shrinkColumns="0">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:src="@drawable/figure" />
+        
+        <TableRow >
+            
+             <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+           
+            android:gravity="center_horizontal"
+            android:text="用户名:"/>
+        <EditText 
+            android:id="@+id/signInUserId"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+           android:singleLine="true"
+            android:hint="请输入用户名" />
+        </TableRow>
+        <TableRow >
+             <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+           
+            
+            android:text="密    码:"/>
+        <EditText 
+            android:id="@+id/signInPwdId"
+            android:layout_width="200dp"
+            android:password="true"
+            android:singleLine="true"
+            android:layout_height="wrap_content"
+            android:hint="请输入密码" />
+        </TableRow>
+    </TableLayout>
+     <TableLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp">
+        <TableRow >
+        <Button 
+            android:id="@+id/signInButtonId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="10dp"
+            android:onClick="signIn"
+            android:text="登录"/>
+        <Button 
+            android:id="@+id/signUpButtonId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_weight="1"
+            android:onClick="signUp"
+            android:text="注册" />
+        </TableRow>
+    </TableLayout>
+
+    
+    
+   
+     
+       
+        
+  
+    
+
+</TableLayout>

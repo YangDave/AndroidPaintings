@@ -1,0 +1,22 @@
+package com.vgpt.androidpaintings.test;
+
+import java.util.Date;
+
+import com.vgpt.androidpaintings.biz.StringToDate;
+
+public class StringToDateTest {
+	
+	@SuppressWarnings("deprecation")
+	public static void main(String[] args) {
+		
+		System.out.println(" dasdfsd");
+		
+//		Date date=StringToDate.StringToDate("2000-1-2", "yyyy-MM-dd");
+//		
+//		Date now =new Date();
+//		
+//		Long quot=now.getTime()-date.getTime();
+//		System.out.println("" + quot);
+	}
+
+}

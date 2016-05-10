@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="choosepic">选择图片</string>
+    <string name="uploader">上传者:</string>
+    <string name="author">作者:</string>
+    <string name="paintingname">作品名称:</string>
+    <string name="paintingsize">作品尺寸:</string>
+    <string name="size">长宽比例:</string>
+    <string name="category">作品类别:</string>
+    <string name="creation_date">创作日期:</string>
+    <string name="paintingintroduction">作品简介:</string>
+    
+    <string name="choose_category">选择作品类别</string>
+    
+    <string name="choose_time">选择时间</string>
+    
+
+</resources>

@@ -1,0 +1,354 @@
+package com.vgpt.androidpaintings.compoent.fragment;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.PointF;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.FloatMath;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.GetBitmapFromLocal;
+import com.vgpt.androidpaintings.compoent.activity.InfoChangeActivity;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.activity.MyCollectActivity;
+import com.vgpt.androidpaintings.compoent.activity.MyFocusActivity;
+import com.vgpt.androidpaintings.compoent.activity.PersonInfo;
+import com.vgpt.androidpaintings.compoent.activity.SettingsActivity;
+import com.vgpt.androidpaintings.compoent.activity.SignInActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.LogUtils;
+import com.vgpt.androidpaintings.biz.SystemImageShow;
+
+public class Fragment4 extends Fragment implements OnClickListener{
+	TextView nameText;
+	TextView ageText;
+	TextView sexText;
+	 TextView addressText;
+	 TextView phoneText;
+	 TextView birthdayText;
+	 TextView introductionText;
+	 ImageView imageView;
+	 Bitmap bm;
+	 
+	 Boolean sexBoolean=false;
+	 SharedPreferences preferences;
+	 SharedPreferences.Editor editor;
+	 Button collectButton,settingsButton;
+	 Button myfocusButton,quitButton;
+	 int user_id=MainActivity.user_id;
+	 String username=MainActivity.username;
+	    String realname;
+	    String age;
+		String phone;
+		String sex;
+		String address;
+		String birthday;
+		String introduction;
+		String photo_url;
+		String photo_name;
+		String url;
+		
+	final static int SETTINGS=30;
+
+	 SharedPreferences signInRecord;
+	 SharedPreferences.Editor signInRecordEditor;
+	 
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		
+	}
+
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			final Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+//		return super.onCreateView(inflater, container, savedInstanceState);
+		 final View rootView=inflater.inflate(R.layout.fragment4, container, false);
+		Button changeButton=(Button)rootView.findViewById(R.id.changeId);
+		 nameText=(TextView)rootView.findViewById(R.id.realname);
+		ageText=(TextView)rootView.findViewById(R.id.age);
+		 sexText=(TextView)rootView.findViewById(R.id.sex);
+		 addressText=(TextView)rootView.findViewById(R.id.address);
+		phoneText=(TextView)rootView.findViewById(R.id.phone);
+		birthdayText=(TextView)rootView.findViewById(R.id.birthday);
+		introductionText=(TextView)rootView.findViewById(R.id.introduction);
+		collectButton=(Button)rootView.findViewById(R.id.collectButton);
+		myfocusButton=(Button)rootView.findViewById(R.id.myfoucusButton);
+		imageView=(ImageView)rootView.findViewById(R.id.image);
+		quitButton=(Button)rootView.findViewById(R.id.quitButton);
+		settingsButton=(Button)rootView.findViewById(R.id.settingsButton);
+		
+		settingsButton.setOnClickListener(this);
+		
+		
+		preferences=getActivity().getSharedPreferences(username,FragmentActivity.MODE_PRIVATE);
+		editor=preferences.edit();
+		
+		signInRecord=getActivity().getSharedPreferences("signInRecord", FragmentActivity.MODE_PRIVATE);
+		signInRecordEditor=signInRecord.edit();
+		
+		
+		realname=preferences.getString("name",null);
+		if(StringUtils.isNotBlank(realname)){
+			sex=preferences.getString("sex","男");
+			LogUtils.v("======"+sex);
+			phone=preferences.getString("phone",null);
+			address=preferences.getString("address",null);
+			age=preferences.getString("age",null);
+			birthday=preferences.getString("birthday",null);
+			introduction=preferences.getString("introduction", null);
+			nameText.setText(realname);
+			sexText.setText(sex);
+			phoneText.setText(phone);
+			addressText.setText(address);
+			phoneText.setText(phone);
+			birthdayText.setText(birthday);
+			introductionText.setText(introduction);
+		}
+		else{
+			Map<String,Object> getInfoMap=new HashMap<String,Object>();
+			getInfoMap.put("user_id", user_id);
+			GetInfoTask task=new GetInfoTask();
+			task.execute(getInfoMap);
+		}
+		 url="storage/extSdCard/paintings/"+String.valueOf(user_id)+".jpeg";
+			bm=GetBitmapFromLocal.getBitmapAutoResize(url);
+		if(bm!=null){
+			imageView.setImageBitmap(bm);
+//			headphotoIsExist=true;
+		}
+		imageView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(bm!=null){
+//					Toast.makeText(getActivity(), "图片存在", Toast.LENGTH_LONG).show();
+
+//					File file = new File(url);
+//				    if( file != null && file.isFile() == true){
+//				     Intent intent = new Intent();
+//				     intent.setAction(android.content.Intent.ACTION_VIEW);
+//				     intent.setDataAndType(Uri.fromFile(file), "image/*");
+//				     startActivity(intent);      
+//				    }
+					
+					new SystemImageShow(url,getActivity()).show();
+				}
+				else{
+					Toast.makeText(getActivity(), "图片不存在", Toast.LENGTH_LONG).show();
+				}
+				
+				
+			}
+		});
+		
+//		Toast.makeText(getActivity(), user_id+"", 5000).show();
+		
+		collectButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				if(user_id!=0){
+					Intent collectIntent=new Intent(getActivity(),MyCollectActivity.class);
+					startActivity(collectIntent);	
+				}
+				else{
+					Intent signInIntent=new Intent(getActivity(),SignInActivity.class);
+					startActivity(signInIntent);
+					Toast.makeText(getActivity(), "你需要先登录",5000).show();
+				}
+			
+			}
+		});
+		
+		
+		myfocusButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				if(user_id!=0){
+					Intent myfocusIntent=new Intent(getActivity(),MyFocusActivity.class);
+					myfocusIntent.putExtra("user_id", user_id);
+					startActivity(myfocusIntent);	
+				}
+				else{
+					Intent signInIntent=new Intent(getActivity(),SignInActivity.class);
+					startActivity(signInIntent);
+					
+				}
+				
+			}
+		});
+	
+		changeButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if(MainActivity.user_id!=0){
+				Bundle persondata=new Bundle();
+				PersonInfo personInfo=new PersonInfo(realname, age, sex,phone, birthday,address, introduction);
+				persondata.putSerializable("personInfo", personInfo);
+				Intent infoIntent=new Intent(getActivity(),InfoChangeActivity.class);
+				infoIntent.putExtra("user_id", user_id);
+				infoIntent.putExtra("username", username);
+//				infoIntent.putExtra("headphotoIsExist", headphotoIsExist);
+				infoIntent.putExtras(persondata);
+				startActivityForResult(infoIntent, 0);
+			}
+				else{
+					Intent signInIntent=new Intent(getActivity(),SignInActivity.class);
+					startActivity(signInIntent);
+					getActivity().finish();}
+				}
+		});
+		
+		quitButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				signInRecordEditor.clear();
+				Intent signInIntent=new Intent(getActivity(),SignInActivity.class);
+				startActivity(signInIntent);
+				getActivity().finish();
+				
+				
+			}
+		});
+		
+		return rootView;
+		
+		
+		
+	}
+	public void onActivityResult(int requestCode,int resultCode,Intent intent){
+		
+		if(requestCode==0 && resultCode==18){
+			PersonInfo changeperson=(PersonInfo)intent.getSerializableExtra("savedPerson");
+			nameText.setText(changeperson.getName());
+			ageText.setText(changeperson.getAge());
+			sexText.setText(changeperson.getSex());
+			addressText.setText(changeperson.getAddress());
+			phoneText.setText(changeperson.getPhone());
+			birthdayText.setText(changeperson.getBirthday());
+			introductionText.setText(changeperson.getIntroduction());
+//			Bitmap bm=ByteExchangeBitmap.ByteToBitmap(intent.getByteArrayExtra("photoByte"));
+			bm=GetBitmapFromLocal.getBitmapAutoResize(url);
+			imageView.setImageBitmap(bm);
+			
+		}
+		
+	}
+	class GetInfoTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		private int checkCode;
+		private JSONObject result;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Api.INFO, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								// "{'username':'sdfsf'}"
+								if((json!=null)&&(json.optInt("code")==1)){
+									result=json.optJSONObject("result");
+									
+									}
+								return json;
+								}
+							});
+						}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			if((checkCode==1)&&(result!=null)){
+				realname=result.optString("name");
+				age=result.optString("age");
+				phone=String.valueOf(result.optInt("phone"));
+				sex=result.optBoolean("sex")?"��":"Ů";
+				birthday=result.optString("birthday");
+				address=result.optString("address");
+				introduction=result.optString("introduction");
+				
+				nameText.setText(realname);
+				ageText.setText(age);
+				phoneText.setText(phone);
+				sexText.setText(sex);
+				birthdayText.setText(birthday);
+				addressText.setText(address);
+				introductionText.setText(introduction);
+				editor.putString("realname", realname);
+				editor.putString("age", age);
+				editor.putString("sex", sex);
+				editor.putString("phone", phone);
+				editor.putString("birthday", birthday);
+				editor.putString("address", address);
+				editor.putString("introduction", introduction);
+				
+			}
+		}
+		
+	}
+	@Override
+	public void onClick(View arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	 
+}

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+    
+    <ImageView 
+        
+        android:id="@+id/gallery_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:src="@drawable/ic_launcher"
+        android:scaleType="fitXY"
+        />
+    
+    <TextView 
+        android:id="@+id/uploaderText"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/gallery_image"
+        android:textSize="@dimen/gallery_item_uploadername"
+        android:layout_marginLeft="62dp"
+        />
+    
+    <TextView 
+        android:id="@+id/uploadTime"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignBaseline="@id/uploaderText"
+        android:textSize="@dimen/gallery_item_date"
+        android:paddingRight="5dp"
+        android:layout_alignParentRight="true"/>
+    
+    <ImageView 
+        android:id="@+id/headPhoto"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@id/uploaderText"
+        android:layout_marginLeft="10dp"
+        android:scaleType="centerInside"
+        
+        />
+    
+    
+    <TextView 
+        android:id="@+id/nameText"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="@dimen/gallery_item_picname"
+        android:layout_below="@id/uploaderText"
+        android:layout_marginTop="5dp"
+        android:text="评论 15"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10dp"
+        />
+    
+    <TextView 
+        android:id="@+id/category"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignBaseline="@id/nameText"
+        android:textSize="12sp"
+        android:text="收藏 10"
+        android:layout_alignParentRight="true"
+       android:layout_marginRight="5dp" />
+    
+    <TextView 
+        android:id="@+id/focus"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="12sp"
+        android:layout_below="@id/nameText"
+        android:text="推荐 8"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10dp"
+        />
+    
+
+</RelativeLayout>

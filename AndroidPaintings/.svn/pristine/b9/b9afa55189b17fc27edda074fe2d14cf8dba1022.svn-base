@@ -1,0 +1,16 @@
+package com.vgpt.androidpaintings.biz;
+
+public class StringExchangeInt {
+	
+	public static String intToString(int value) {
+		Integer integer = new Integer(value);
+		return integer.toString();
+	}
+
+	public static int stringToInt(String intstr) {
+		Integer integer;
+		integer = Integer.valueOf(intstr);
+		return integer.intValue();
+	}
+
+}

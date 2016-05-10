@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+     android:paddingTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+    android:orientation="vertical" >
+    
+    <RelativeLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        >
+         <TextView 
+        android:id="@+id/associationname"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" 
+        android:gravity="left"/>
+         <ImageView 
+             android:id="@+id/mark"
+             android:layout_height="60dp"
+             android:layout_width="60dp"
+             android:layout_alignRight="@id/associationname"/>
+    </RelativeLayout>
+    
+   
+    <TableLayout 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="30dp"
+       >
+        <TableRow >
+            <Button 
+                android:id="@+id/associationinfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="协会信息"
+                android:layout_weight="1"/>
+            <Button 
+                android:id="@+id/member"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="协会成员"
+                android:layout_width="wrap_content"/>
+        </TableRow>
+        <TableRow >
+            <Button 
+                android:id="@+id/notice"
+                android:layout_width="wrap_content"
+                android:text="协会公告"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+            <Button 
+                android:id="@+id/activity"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="协会活动"
+                android:layout_width="wrap_content"/>
+        </TableRow>
+        <TableRow >
+            <Button 
+                android:id="@+id/usertojoinin"
+                android:layout_width="wrap_content"
+                android:text="协会申请"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+            <Button 
+                android:id="@+id/more"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="更多"
+                android:layout_width="wrap_content"/>
+        </TableRow>
+        
+    </TableLayout>
+    
+
+</LinearLayout>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <FrameLayout 
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:id="@+id/framelayout"  >
+        
+        
+    </FrameLayout>
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+        <Button 
+            android:id="@+id/homepage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="homePageListener"
+            android:text="主页" />
+        
+        <Button 
+            android:id="@+id/paintings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="paintingsListener"
+            android:text="书画" />
+        
+        <Button 
+            android:id="@+id/periodical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="periodicalListener"
+            android:text="期刊" />
+        
+        
+        
+        <Button 
+            android:id="@+id/association"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="associationListener"
+            android:text="协会" />
+        
+        <Button 
+            android:id="@+id/setup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="setupListener"
+            android:text="设置" />"
+        
+    </LinearLayout>
+    
+
+</LinearLayout>

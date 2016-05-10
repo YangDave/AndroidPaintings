@@ -1,0 +1,65 @@
+package com.vgpt.androidpaintings.compoent.adapter;
+
+import java.util.List;
+import java.util.Map;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.constants.Constant;
+
+public class MyCommentListAdapter  extends AbsListAdapter{
+
+	public MyCommentListAdapter(Context mContext,
+			List<Map<String, Object>> listItems) {
+		super(mContext, listItems);
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		ItemViewHolder itemViewHolder=null;
+		if (convertView == null) {
+			convertView = LayoutInflater.from(mContext).inflate(
+					R.layout.mycomment_item, null);
+			itemViewHolder = new ItemViewHolder();
+			convertView.setTag(itemViewHolder);
+
+		} else {
+			itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+		}
+
+		itemViewHolder.painting = (ImageView) convertView
+				.findViewById(R.id.commentedimage);
+		itemViewHolder.nameText = (TextView) convertView
+				.findViewById(R.id.title);
+		itemViewHolder.dateText=(TextView)convertView
+				.findViewById(R.id.date);
+		itemViewHolder.commentText = (TextView) convertView
+				.findViewById(R.id.content);
+		@SuppressWarnings("unchecked")
+		Map<String, Object> picItem = (Map<String, Object>) getItem(position);
+		int pic_id=(Integer)picItem.get("pic_id");
+		itemViewHolder.nameText
+				.setText(picItem.get("pic_name").toString());
+		itemViewHolder.commentText.setText(picItem.get("body").toString()); 
+		itemViewHolder.dateText.setText(picItem.get("time").toString());
+		itemViewHolder.commentText.setTag(picItem.get("comment_id").toString());
+		Picasso.with(mContext).load(Constant.Painting.GET_PICTURE+pic_id).into(itemViewHolder.painting);
+
+		return convertView;
+	}
+	
+	class ItemViewHolder{
+		ImageView painting;
+		TextView nameText,dateText,commentText;
+	}
+	
+
+}

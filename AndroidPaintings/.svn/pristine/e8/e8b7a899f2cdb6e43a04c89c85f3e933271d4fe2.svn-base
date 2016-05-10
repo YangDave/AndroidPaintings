@@ -1,0 +1,112 @@
+package com.vgpt.androidpaintings.test;
+
+import android.app.Activity;
+import android.app.Application;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import cn.trinea.android.common.entity.FailedReason;
+import cn.trinea.android.common.service.impl.ImageCache;
+import cn.trinea.android.common.service.impl.ImageMemoryCache.OnImageCallbackListener;
+import cn.trinea.android.common.util.CacheManager;
+
+public class testNewLib extends Activity{
+	
+	
+	public static final ImageCache IMAGE_CACHE = CacheManager.getImageCache();
+	
+	public static final ImageCache IMAGE = new ImageCache();
+	
+	public static final String  TAG_CACHE = "dfasdfsdf";
+	
+	public static String yang;
+	
+	
+	void test(){
+		
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		
+		super.onCreate(savedInstanceState);
+		
+		BitmapCacheSingleInstance bcsi = BitmapCacheSingleInstance.getInstance();
+		
+		IMAGE.setOnImageCallbackListener(bcsi);
+		
+		
+		IMAGE.setOnImageCallbackListener(new OnImageCallbackListener() {
+			
+			@Override
+			public void onPreGet(String imageUrl, View view) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onGetSuccess(String imageUrl, Bitmap loadedImage, View view,
+					boolean isInCache) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onGetNotInCache(String imageUrl, View view) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onGetFailed(String imageUrl, Bitmap loadedImage, View view,
+					FailedReason failedReason) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		
+		
+	}
+	
+	static {
+	    OnImageCallbackListener imageCallBack = new OnImageCallbackListener() {
+	 
+	        private static final long serialVersionUID = 1L;
+	 
+	        // callback function before get image, run on ui thread
+	        @Override
+	        public void onPreGet(String imageUrl, View view) {
+	            // Log.e(TAG_CACHE, "pre get image");
+	        }
+	 
+	        // callback function after get image successfully, run on ui thread
+	        @Override
+	        public void onGetSuccess(String imageUrl, Bitmap loadedImage, View view, boolean isInCache) {
+	            // can be another view child, like textView and so on
+	            if (view != null && loadedImage != null && view instanceof ImageView) {
+	                ImageView imageView = (ImageView)view;
+	                imageView.setImageBitmap(loadedImage);
+	            }
+	        }
+	 
+	        // callback function after get image failed, run on ui thread
+	        @Override
+	        public void onGetFailed(String imageUrl, Bitmap loadedImage, View view, FailedReason failedReason) {
+	            Log.e(TAG_CACHE, new StringBuilder(128).append("get image ").append(imageUrl).append(" error")
+	                                                   .toString());
+	        }
+	 
+	        @Override
+	        public void onGetNotInCache(String imageUrl, View view) {
+	 
+	        }
+	    };
+	    IMAGE_CACHE.setOnImageCallbackListener(imageCallBack);
+	}
+	
+	
+}

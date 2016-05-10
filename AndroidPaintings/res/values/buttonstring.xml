@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="landscapebutton">风景</string>
+    <string name="figurebutton">人物</string>
+    <string name="allbutton">全部</string>
+    <string name="birdbutton">鸟兽</string>
+    <string name="insectbutton">虫鱼</string>
+    <string name="otherbutton">其他</string>
+    
+</resources>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+    
+    <ImageView 
+        
+        android:id="@+id/gallery_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:src="@drawable/ic_launcher"
+        android:scaleType="fitXY"
+        />
+    
+    <TextView 
+        android:id="@+id/uploaderText"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/gallery_image"
+        android:textSize="@dimen/gallery_item_uploadername"
+        android:layout_marginLeft="3dp"
+        />
+    
+     <TextView 
+        android:id="@+id/nameText"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:layout_below="@id/gallery_image"
+        android:textSize="@dimen/gallery_item_uploadername"
+        android:layout_toRightOf="@+id/uploaderText"
+        />
+     
+        <TextView 
+        android:id="@+id/category"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignBaseline="@id/nameText"
+        android:textSize="12sp"
+        android:layout_alignParentRight="true"
+       android:layout_marginRight="5dp" />
+    
+    <TextView 
+        android:id="@+id/remainTime"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/uploaderText"
+        android:layout_marginLeft="3dp"
+        android:textSize="@dimen/gallery_item_date"
+        android:layout_alignParentLeft="true"
+        android:text="@string/remaintime"
+        />
+    
+    <TextView 
+        android:id="@+id/remainTimeText"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_toRightOf="@id/remainTime"
+        android:layout_alignBaseline="@id/remainTime"
+        android:textSize="@dimen/gallery_item_picname"
+        android:textColor="@android:color/holo_red_dark"
+        />
+    
+    <TextView 
+        android:id="@+id/current_price"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/remainTime"
+        android:layout_marginLeft="3dp"
+        android:textSize="@dimen/gallery_item_date"
+        android:layout_alignParentLeft="true"
+        android:text="@string/current_price"
+        />
+    
+     <TextView 
+        android:id="@+id/currentPriceText"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_toRightOf="@id/current_price"
+        android:layout_alignBaseline="@id/current_price"
+        android:textSize="@dimen/gallery_item_date"
+        android:textColor="@android:color/holo_red_dark"
+        />
+     
+     <TextView 
+         android:id="@+id/auctiontimes"
+         android:layout_height="wrap_content"
+         android:layout_width="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_below="@id/remainTime"
+         android:layout_alignBaseline="@id/current_price"
+         android:layout_marginRight="3dp"
+         android:textSize="@dimen/gallery_item_date"
+         android:text="@string/auctiontimes"
+         
+         />
+<!--      <TextView  -->
+<!--          android:id="@+id/auctiontimesText" -->
+<!--          android:layout_height="wrap_content" -->
+<!--          android:layout_width="wrap_content" -->
+<!--          android:layout_below="@id/remainTime" -->
+<!--          android:layout_alignBaseline="@id/current_price" -->
+<!--          android:layout_toRightOf="@id/auctiontimes" -->
+<!--          android:textSize="@dimen/gallery_item_date" -->
+         
+<!--          /> -->
+    
+    
+    
+
+</RelativeLayout>

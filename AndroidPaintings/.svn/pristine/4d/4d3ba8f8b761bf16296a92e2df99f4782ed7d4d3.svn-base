@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="focused_asso">关注的协会</string>
+    <string name="asso_list">全部的协会</string>
+    <string name="asso_joined">加入的协会</string>
+    
+    <string name="asso_focus">关注</string>
+    
+    <string name="asso_create">协会创建</string>
+    
+    <string name="asso_chairman">协会主席</string>
+    <string name="asso_organizor">组织者</string>
+    
+    <string name="asso_create_success">协会创建成功</string>
+    
+    <string name="asso_create_fail">协会创建失败</string>
+</resources>

@@ -1,0 +1,491 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.ref.SoftReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.webkit.URLUtil;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.BitmapExchangeDrawable;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.compoent.activity.paintings.TouchListener;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class ShowImageActivity extends Activity{
+	
+	ImageView imageView;
+	TextView nameText;
+	TextView authorText;
+	TextView sizeText;
+	TextView date_creationText;
+	TextView date_onText;
+	TextView identificationText;
+	TextView introductionText;
+	Button collectButton;
+	SharedPreferences signInRecord;
+	String username;
+	SharedPreferences userPre;
+	int user_id;
+	int  pic_id;
+	Boolean isWorking=false;
+	Boolean collectOrNot;
+	Bitmap bm=null;
+
+    Button uploaderview;
+	@SuppressWarnings("unchecked")
+	protected void onCreate(Bundle savedInstanceState){
+		
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_show_image);
+		ExitApplication.getInstance().addActivity(this);
+		
+		imageView=(ImageView)findViewById(R.id.image);
+		nameText=(TextView)findViewById(R.id.name);
+		authorText=(TextView)findViewById(R.id.author);
+		sizeText=(TextView)findViewById(R.id.size);
+		date_creationText=(TextView)findViewById(R.id.date_creation);
+		date_onText=(TextView)findViewById(R.id.date_on);
+		identificationText=(TextView)findViewById(R.id.identification);
+		introductionText=(TextView)findViewById(R.id.introduction);
+		authorText.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
+		uploaderview=(Button)findViewById(R.id.uploader);
+		collectButton=(Button)findViewById(R.id.collect);
+		
+		signInRecord=getSharedPreferences("signInRecord", MODE_PRIVATE);
+		username=signInRecord.getString("lastSignInUser", null);
+		
+		userPre=getSharedPreferences(username, MODE_PRIVATE);
+		user_id=userPre.getInt("user_id", 0);
+		
+		Intent intent=getIntent();
+		pic_id=intent.getIntExtra("pic_id", 0);
+		
+		user_id=intent.getIntExtra("user_id", 0);
+		collectOrNot=intent.getBooleanExtra("Collectornot", false);
+		if(collectOrNot){
+			collectButton.setText("已收藏");
+			collectButton.setBackgroundColor(Color.GRAY);
+			collectButton.setClickable(false);
+		}
+		ShowImageTask showImageTask=new ShowImageTask();
+		Map<String,Object> map=new HashMap<String, Object>();
+		map.put("pic_id",pic_id);
+		map.put("user_id", user_id);
+		showImageTask.execute(map);
+		
+		imageView.setTag(String.valueOf(pic_id));
+		PaintingShowTask getPaintingTask=new PaintingShowTask();
+		getPaintingTask.execute(imageView);
+		
+		uploaderview.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				Intent it=new Intent(ShowImageActivity.this,PersonInfoActivity.class);
+				it.getIntExtra("person_id", (Integer) uploaderview.getTag());
+				startActivity(it);
+				
+				
+			}
+			
+		});
+		
+		imageView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if(bm!=null){
+					AlertDialog.Builder builder=new Builder(ShowImageActivity.this);
+					View view=getLayoutInflater().inflate(R.layout.photoview,null);
+					ImageView image=(ImageView)view.findViewById(R.id.photo);
+					image.setImageBitmap(bm);
+					builder.setView(view);
+					TouchListener listener=new TouchListener(image);
+					image.setOnTouchListener(listener);
+					
+				}else{
+					Toast.makeText(ShowImageActivity.this, "图片不存在", Toast.LENGTH_LONG).show();
+				}
+				
+				
+			}
+		});
+		
+		
+		
+		collectButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if(!isWorking){
+				Map<String,Object> map=new HashMap<String, Object>();
+				map.put("user_id", user_id);
+				map.put("pic_id", pic_id);
+				CollectTask collectPainting=new CollectTask();
+				collectPainting.execute(map);
+				}
+			}
+		});
+		
+		
+	}
+	
+	
+	class CollectTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		Boolean successOrNot=false;
+		int checkCode;
+
+		@Override
+		protected void onCancelled() {
+			// TODO Auto-generated method stub
+			super.onCancelled();
+		}
+
+		@Override
+		protected void onCancelled(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onCancelled(result);
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			
+			if((checkCode==1)&&successOrNot){
+				Toast.makeText(ShowImageActivity.this, "添加收藏成功", 3000).show();
+				collectButton.setClickable(false);
+				collectButton.setBackgroundColor(Color.DKGRAY);
+				collectButton.setText("已收藏");
+			}
+			else{
+				Toast.makeText(ShowImageActivity.this, "收藏失败", 3000).show();
+			}
+			isWorking=false;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			// TODO Auto-generated method stub
+			isWorking = true;
+
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Painting.SET_COL, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								// "{'username':'sdfsf'}"
+								if (json != null && json.optInt("code") == 1) {
+									JSONObject ret = json
+											.optJSONObject("result");
+									successOrNot=ret.optBoolean("success");
+
+									checkCode = json.optInt("code");
+									// JSONArray js=new JSONArray();
+									// Map<String, Object> map=new
+									// HashMap<String,Object>();
+									// TODO
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+				//Toast.makeText(getActivity(), "鏈煡閿欒", 5000);
+			}
+
+			return json;
+		}
+
+		
+	}
+	
+	
+	class ShowImageTask extends AsyncTask<Map<String,Object>, Integer,JSONObject>{
+		private int checkCode=0;
+		JSONObject ret;
+
+		@Override
+		protected void onCancelled() {
+			// TODO Auto-generated method stub
+			super.onCancelled();
+		}
+
+		@Override
+		protected void onCancelled(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onCancelled(result);
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			String name=ret.optString("name");
+			String introduction=ret.optString("introduction");
+			String author=ret.optString("author");
+			int high=ret.optInt("high");
+			int width=ret.optInt("width");
+			String address=ret.optString("address");
+			String date_creation=ret.optString("date_creation");
+			String date_on=ret.optString("date_on");
+			boolean identification=ret.optBoolean("identification");
+			String up_name=ret.optString("up_name");
+			int uploader_id=ret.optInt("up_id");
+			collectOrNot=ret.optBoolean("collect_or_not");
+			
+			
+			String[] date_creation_array=date_creation.split("-");
+			String[] date_on_array=date_on.split("-");
+			
+			nameText.setText(name);
+//			if(StringUtils.isNotBlank(introduction)){
+//			introductionText.setText(introduction);
+//			}
+			if(collectOrNot){
+				collectButton.setText("已收藏");
+				collectButton.setClickable(false);
+				collectButton.setBackgroundColor(Color.GRAY);
+			}
+			authorText.setText(author);
+			sizeText.setText("长"+high+"宽"+width);
+			date_creationText.setText(date_creation_array[0]+"年"+date_creation_array[1]+"月"+date_creation_array[2]+"日");
+			date_onText.setText(date_on_array[0]+"年"+date_on_array[1]+"月"+date_on_array[2]+"日");
+			identificationText.setText(identification==true?"已认证":"未认证");
+			imageView.setTag(pic_id);
+			uploaderview.setText(up_name);
+			uploaderview.setTag(uploader_id);
+//			new PaintingShowTask().execute(imageView);
+			
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+
+		@Override
+		protected JSONObject doInBackground(
+				Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Painting.PAINTING_SHOW, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								// "{'username':'sdfsf'}"
+								if (json != null && json.optInt("code") == 1) {
+									ret = json.optJSONObject("result");
+								
+									checkCode = json.optInt("code");
+									// JSONArray js=new JSONArray();
+									// Map<String, Object> map=new
+									// HashMap<String,Object>();
+									// TODO
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+				//Toast.makeText(getActivity(), "鏈煡閿欒", 5000);
+			}
+
+			return json;
+			
+		}
+		
+	}
+	class PaintingShowTask extends AsyncTask<View, Integer, Drawable> {
+
+		private View mView;
+		private HashMap<String, SoftReference<Drawable>> imageCache;
+		Drawable drawable;
+
+		public PaintingShowTask() {
+			imageCache = new HashMap<String, SoftReference<Drawable>>();
+			
+		}
+
+		@Override
+		protected Drawable doInBackground(View... params) {
+
+			// TODO Auto-generated method stub
+			drawable = null;
+			View view = params[0];
+			this.mView=view;
+//			if (view.getTag() != null) {
+//				if (imageCache.containsKey(view.getTag())) {
+//					SoftReference<Drawable> cache = imageCache.get(view
+//							.getTag().toString());
+//					drawable = cache.get();
+//					if (drawable != null) {
+//						return drawable;
+//					}
+//				}
+//				try {
+//					if (URLUtil.isHttpUrl(view.getTag().toString())) {
+//						URL url = new URL(view.getTag().toString());
+//						HttpURLConnection conn = (HttpURLConnection) url
+//								.openConnection();
+//						conn.setDoInput(true);
+//						conn.connect();
+//						InputStream stream = conn.getInputStream();
+//						drawable = Drawable.createFromStream(stream, "src");
+//						stream.close();
+//					}
+//
+//				} catch (Exception e) {
+//					Log.v("painting", e.getMessage());
+//					return null;
+//				}
+//			}
+//			this.mView = view;
+			if(pic_id!=0){
+				MyHttpClient cl = MyHttpClient.getInstance();
+
+				List<NameValuePair> list = new ArrayList<NameValuePair>();
+				
+				Map<String,Object> map=new HashMap<String, Object>();
+				
+				map.put("pic_id", 1);
+				
+
+				JSONObject json = new JSONObject(map);
+
+				NameValuePair pa = new BasicNameValuePair("json", json.toString());
+				list.add(pa);
+				
+				try{
+					HttpEntity he=cl.post(Constant.Painting.GET_PICTURE, list);
+					InputStream is=he.getContent();
+					drawable=Drawable.createFromStream(is, "src");
+					LogUtils.v("=========inputStream is execute");
+					is.close();
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+
+			}
+			return drawable;
+		}
+
+		@Override
+		protected void onCancelled() {
+			// TODO Auto-generated method stub
+			super.onCancelled();
+		}
+
+		@Override
+		protected void onCancelled(Drawable result) {
+			// TODO Auto-generated method stub
+			super.onCancelled(result);
+		}
+
+		@SuppressLint("NewApi")
+		@Override
+		protected void onPostExecute(Drawable result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			if (drawable != null) {
+				((ImageView)this.mView).setImageDrawable(result);
+				bm=BitmapExchangeDrawable.drawableToBitmap(drawable);
+
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+
+	}
+	
+	
+
+}

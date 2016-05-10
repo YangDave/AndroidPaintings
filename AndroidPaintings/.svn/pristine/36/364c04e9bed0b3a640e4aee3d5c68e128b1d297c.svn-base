@@ -1,0 +1,290 @@
+package com.vgpt.androidpaintings.compoent.activity.user;
+
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.StringBody;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.Toast;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.base.MyActivity;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.entity.PersonInfo;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.interfacepackage.OnPostInterface;
+import com.vgpt.androidpaintings.utils.AsycTaskUtil;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class InfoChangeActivity extends MyActivity {
+
+	EditText nameEdit;
+	EditText phoneEdit;
+	EditText ageEdit;
+	EditText introductionEdit;
+	EditText birthdayEdit;
+	RadioGroup sexEdit;
+	Button cancelButton;
+	Button okButton;
+//	定义保存编辑信息的变量
+	private String mName,mPhone,mAge,mIntroduction,mBirthday;
+//	private int mSex;
+
+
+	String sexreturn,birthday;
+	Intent infoIntent;
+	final int PHOTOCHANGE = 3;
+
+
+	final static int PICTURE=11;
+	final static int CAMERA=10;
+
+	SharedPreferences preferences;
+	SharedPreferences.Editor editor;
+
+
+	@SuppressLint("UseValueOf")
+	public static String intToString(int value) {
+		Integer integer = new Integer(value);
+		return integer.toString();
+	}
+
+	public static int stringToInt(String intstr) {
+		Integer integer;
+		integer = Integer.valueOf(intstr);
+		return integer.intValue();
+	}
+	
+	
+
+
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_infochange);
+		
+//		getActionBar().setDisplayHomeAsUpEnabled(true);
+
+		loadPage(this);
+
+	}
+
+
+
+	private void infoChangedSuccess(){
+		username = MainActivity.username;
+		preferences = getSharedPreferences(username, MODE_PRIVATE);
+		editor = preferences.edit();
+		String name = nameEdit.getText().toString().trim();
+		String age = ageEdit.getText().toString().trim();
+		String phone = phoneEdit.getText().toString().trim();
+		String birthday =  birthdayEdit.getText().toString().trim();
+		String introduction = introductionEdit.getText().toString().trim();
+		editor.putString("name", name);
+		editor.putString("age", age);
+		editor.putString("phone", phone);
+		editor.putString("sex", sexreturn);
+		editor.putString("birthday",birthday);
+		editor.putString("introduction", introduction);
+		editor.commit();
+
+		Bundle changeInfoData = new Bundle();
+		PersonInfo savedPerson = new PersonInfo(name,age,phone,sexreturn,birthday,introduction);
+
+		changeInfoData.putSerializable("savedPerson", savedPerson);
+		infoIntent.putExtras(changeInfoData);
+
+		InfoChangeActivity.this.setResult(18, infoIntent);
+		InfoChangeActivity.this.finish();
+	}
+
+	@Override
+	public void findView() {
+
+		nameEdit = (EditText) findViewById(R.id.namechange);
+		sexEdit = (RadioGroup) findViewById(R.id.sexgroup);
+		phoneEdit = (EditText) findViewById(R.id.phonechange);
+		ageEdit = (EditText) findViewById(R.id.agechange);
+		birthdayEdit = (EditText) findViewById(R.id.birthdaychange);
+		introductionEdit = (EditText) findViewById(R.id.selfintroduction);
+		cancelButton = (Button) findViewById(R.id.cancelInfoChange);
+		okButton = (Button) findViewById(R.id.okinfoChange);
+	}
+
+	@Override
+	public void prepareData() {
+
+		infoIntent = getIntent();
+
+		preferences=getSharedPreferences(username,FragmentActivity.MODE_PRIVATE);
+		editor=preferences.edit();
+		String name=preferences.getString("name",null);
+		String sex=preferences.getString("sex","男");
+		LogUtils.v("======"+sex);
+		String phone=preferences.getString("phone",null);
+		String age=preferences.getString("age",null);
+		birthday=preferences.getString("birthday",null);
+		String introduction=preferences.getString("introduction", null);
+
+		LogUtils.v("name "+name+" phone "+phone);
+
+		nameEdit.setText(name);
+		nameEdit.setSelection(nameEdit.getText().length());
+
+		if (sex.equals("男")) {
+			sexEdit.check(R.id.male);
+
+		} else {
+			sexEdit.check(R.id.female);
+		}
+
+		phoneEdit.setText(phone);
+		phoneEdit.setSelection(phoneEdit.getText().length());
+
+		ageEdit.setText(age);
+		ageEdit.setSelection(ageEdit.getText().length());
+
+		birthdayEdit.setText(birthday);
+
+		introductionEdit.setText(introduction);
+	}
+
+	@Override
+	public void addListener() {
+
+		cancelButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				InfoChangeActivity.this.finish();
+
+			}
+		});
+
+		okButton.setOnClickListener(new OnClickListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onClick(View v) {
+
+				int changedage = 0;
+				int changedphone = 0;
+
+				String changedbirthday = birthdayEdit.getText().toString();
+
+				if (StringUtils.isNumeric(ageEdit.getText().toString())) {
+					changedage = Integer.valueOf(ageEdit.getText().toString())
+							.intValue();
+				}
+				if (StringUtils.isNumeric(phoneEdit.getText().toString())) {
+
+					changedphone = Integer.valueOf(
+							phoneEdit.getText().toString()).intValue();
+
+				}
+
+				Boolean changedsex = sexEdit.getCheckedRadioButtonId() == R.id.male ? true
+						: false;
+				sexreturn = sexEdit.getCheckedRadioButtonId() == R.id.male ? "男" : "女";
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("user_id", user_id);
+				map.put("name", nameEdit.getText().toString());
+				map.put("sex", changedsex);
+				map.put("phone", changedphone);
+				map.put("birthday", changedbirthday);
+				map.put("age", changedage);
+				map.put("introduction", introductionEdit.getText().toString());
+				map.put("photo_name", String.valueOf(user_id) + ".jpg");
+
+				AsycTaskUtil atu = new AsycTaskUtil(InfoChangeActivity.this, 
+						Constant.Api.USER_DATA, new OnPostInterface() {
+
+					@Override
+					public void code_1(JSONObject json) {
+						JSONObject result = json.optJSONObject("result");
+						boolean isSuccess = result.optBoolean("success");
+						if(isSuccess){
+							infoChangedSuccess();
+						}else{
+							Toast.makeText(InfoChangeActivity.this, "修改失败", Toast.LENGTH_LONG).show();
+						}
+
+					}
+				});
+
+				atu.execute(map);
+
+			}
+		});
+
+
+
+		birthdayEdit.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View arg0, boolean hasFocus) {
+				if(hasFocus){
+					int year;
+					int month;
+					int day;
+					if(birthday!=null){
+						final String[] date=birthday.split("-");
+						year=Integer.parseInt(date[0]);
+						month=Integer.parseInt(date[1]);
+						day=Integer.parseInt(date[2]);
+					}else{
+						Calendar c = Calendar.getInstance();
+						year=c.get(Calendar.YEAR);
+						month=c.get(Calendar.MONTH);
+						day=c.get(Calendar.DAY_OF_MONTH);
+					}
+
+					new DatePickerDialog(InfoChangeActivity.this,
+							new DatePickerDialog.OnDateSetListener() {
+
+						@Override
+						public void onDateSet(DatePicker view, int year,
+								int monthOfYear, int dayOfMonth) {
+
+							monthOfYear=monthOfYear+1;
+							birthdayEdit.setText(year + "-" + monthOfYear
+									+ "-" + dayOfMonth);
+
+						}
+					}, year, month-1, day).show();
+
+				}
+			}
+		});
+
+		LogUtils.v("年："+Calendar.YEAR+"  月："+Calendar.MONTH+" 日:"+Calendar.DAY_OF_MONTH);
+
+	}
+
+	@Override
+	public void showContent() {
+		// TODO Auto-generated method stub
+
+	}
+}

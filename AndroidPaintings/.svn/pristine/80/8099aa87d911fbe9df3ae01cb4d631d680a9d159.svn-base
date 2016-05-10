@@ -1,0 +1,274 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.compoent.activity.ShowImageActivity;
+
+public class MyCollectActivity extends Activity{
+	ListView collectList;
+	CollectAdapter adapter=null;
+	int user_id;
+	int clickedButtonId;
+	
+
+	@SuppressWarnings("unchecked")
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_my_collection);
+		ExitApplication.getInstance().addActivity(this);
+		collectList=(ListView)findViewById(R.id.collectList);
+		user_id=MainActivity.user_id;
+		
+			Map<String,Object> collectMap=new HashMap<String, Object>();
+			collectMap.put("user_id",user_id);
+			GetCollectTask getCollect=new GetCollectTask();
+			getCollect.execute(collectMap);
+			
+			adapter=new CollectAdapter(MyCollectActivity.this,new ArrayList<Map<String,Object>>());
+			collectList.setAdapter(adapter);
+			
+		collectList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View mView, int position,
+					long arg3) {
+				Map<String,Object> map=(Map<String, Object>) adapter.getItem(position);
+				int pic_id=(Integer) map.get("pic_id");
+				Intent showImageIntent=new Intent(MyCollectActivity.this,ShowImageActivity.class);
+				showImageIntent.putExtra("pic_id", pic_id);
+				showImageIntent.putExtra("user_id", user_id);
+				showImageIntent.putExtra("Collectornot", true);
+				startActivity(showImageIntent);
+				
+			}
+		});
+		
+		
+		
+		
+	}
+	class GetCollectTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		int checkCode;
+		List<Map<String,Object>> collect_list;
+		JSONArray collect_items;
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			for(int i=0;i<collect_items.length();i++){
+				Map<String,Object> item=new HashMap<String, Object>();
+				JSONObject jsonItem=collect_items.optJSONObject(i);
+				item.put("pic_name",jsonItem.optString("pic_name"));
+				item.put("pic_id", jsonItem.optInt("pic_id"));
+				adapter.getItems().add(item);
+			}
+			adapter.notifyDataSetChanged();
+			
+			
+		}
+
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Painting.GET_COL, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									collect_items = json
+											.optJSONArray("result");
+									
+									checkCode = json.optInt("code");
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+			
+		}
+		
+	}
+	class CollectAdapter extends BaseAdapter{
+		private Context mContext;
+		private List<Map<String,Object>> adapterItems;
+		
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+		}
+		
+		public CollectAdapter(Context mContext,List<Map<String,Object>> adapterItems){
+			this.mContext=mContext;
+			this.adapterItems=adapterItems;
+			
+		}
+		
+		
+		public void setItems(List<Map<String,Object>> adapterItems){
+			this.adapterItems=adapterItems;
+		
+		}
+		
+		public List<Map<String,Object>> getItems(){
+			return adapterItems;
+			
+		}
+
+		@Override
+		public int getCount() {
+			return adapterItems.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return adapterItems.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			ItemViewHolder itemViewHolder = null;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(mContext).inflate(
+						R.layout.collect_listitem, null);
+				itemViewHolder = new ItemViewHolder();
+				convertView.setTag(itemViewHolder);
+
+			} else {
+				itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+			}
+
+			itemViewHolder.collectText = (TextView)convertView.findViewById(R.id.name);
+			itemViewHolder.delButton=(Button)convertView.findViewById(R.id.del_col);
+			@SuppressWarnings("unchecked")
+			final
+			Map<String, Object> paintingItem = (Map<String, Object>) getItem(position);
+			final int i=position;
+			itemViewHolder.collectText
+					.setText((String)paintingItem.get("pic_name"));
+			itemViewHolder.delButton.setTag(position);
+			itemViewHolder.delButton.setOnClickListener(new OnClickListener() {
+				
+				@SuppressWarnings("unchecked")
+				@Override
+				public void onClick(View v) {
+					int delPic_id=(Integer) paintingItem.get("pic_id");
+					Map<String,Object> delmap=new HashMap<String, Object>();
+					delmap.put("pic_id",delPic_id);
+					delmap.put("user_id", user_id);
+					clickedButtonId=i;
+					DelColTask delColTask=new DelColTask();
+					delColTask.execute(delmap);
+					
+					
+				}
+			});
+			return convertView;
+		}
+		class ItemViewHolder{
+			TextView collectText;
+			Button delButton;
+		}
+		
+	}
+	class DelColTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		private int checkCode;
+		private JSONObject ret;
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			if((checkCode==1)&&ret.optBoolean("success")){
+				adapter.getItems().remove(clickedButtonId);
+				adapter.notifyDataSetChanged();
+			}
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Painting.DEL_COL, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									ret = json
+											.optJSONObject("result");
+									
+									checkCode = json.optInt("code");
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+		
+	}
+
+}

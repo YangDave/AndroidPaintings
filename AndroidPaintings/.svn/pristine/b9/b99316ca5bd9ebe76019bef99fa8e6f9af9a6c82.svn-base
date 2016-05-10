@@ -1,0 +1,384 @@
+package com.vgpt.androidpaintings.compoent.activity.user;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.BitmapExchangeDrawable;
+import com.vgpt.androidpaintings.biz.GetBitmapFromLocal;
+import com.vgpt.androidpaintings.biz.SaveToLocalPainting;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.activity.paintings.PaintingUploadActivity;
+import com.vgpt.androidpaintings.compoent.activity.paintings.PictureChangeSizeShowActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.entity.PersonInfo;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.interfaceImpl.MyActivity;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class UserDataActivity extends MyActivity{
+
+	final static int INFORESET=18;
+	final static int REQCODE = 5000;
+	final static int PICTURE=11;
+	final static int CAMERA=10;
+
+	TextView nameText;
+	TextView ageText;
+	TextView sexText;
+	TextView phoneText;
+	TextView birthdayText;
+	TextView introductionText;
+	ImageView imageView;
+	Button changeBt;
+
+	Bitmap bm;
+
+	String realname;
+	String age;
+	String phone;
+	String sex;
+	String address;
+	String birthday;
+	String introduction;
+	String photo_name;
+	String picturePath;
+
+	SharedPreferences preferences;
+	SharedPreferences.Editor editor;
+
+	String username;
+
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_user_data);
+
+		loadPage(UserDataActivity.this);
+
+
+	}
+	
+	
+
+
+
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		
+		getMenuInflater().inflate(R.menu.user_data_item, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+
+
+
+
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		return super.onMenuItemSelected(featureId, item);
+	}
+
+
+
+
+
+
+	@Override
+	public void findView() {
+
+		nameText=(TextView)findViewById(R.id.realname);
+		ageText=(TextView)findViewById(R.id.age);
+		sexText=(TextView)findViewById(R.id.sex);
+		phoneText=(TextView)findViewById(R.id.phone);
+		birthdayText=(TextView)findViewById(R.id.birthday);
+		introductionText=(TextView)findViewById(R.id.introduction);
+		changeBt = (Button)findViewById(R.id.changeId);
+		imageView = (ImageView)findViewById(R.id.headPhoto);
+
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void doReady() {
+
+
+		LogUtils.v("===========userData.user_id=="+this.user_id+"===========");
+
+		/*
+		 * 获取用户个人详细信息
+		 */
+		preferences=getSharedPreferences(this.username,MODE_PRIVATE);
+		editor=preferences.edit();
+
+		realname=preferences.getString("name",null);
+		phone=preferences.getString("phone",null);
+		address=preferences.getString("address",null);
+		age=preferences.getString("age",null);
+		birthday=preferences.getString("birthday",null);
+		introduction=preferences.getString("introduction", null);
+		sex=preferences.getString("sex","男");
+		if(StringUtils.isNotBlank(realname)||StringUtils.isNotBlank(phone)||StringUtils.isNotBlank(address)
+				||StringUtils.isNotBlank(birthday)||StringUtils.isNotBlank(introduction)){
+			LogUtils.v("===============realname is not blank");
+
+			nameText.setText(realname);
+			sexText.setText(sex);
+			phoneText.setText(phone);
+			phoneText.setText(phone);
+			birthdayText.setText(birthday);
+			introductionText.setText(introduction);
+		}
+		else{
+			//			本地无用户数据则从网上获取
+			Map<String,Object> getInfoMap=new HashMap<String,Object>();
+			LogUtils.v("=======ready to get from web");
+			getInfoMap.put("user_id", user_id);
+			GetInfoTask task=new GetInfoTask();
+			task.execute(getInfoMap);
+		}
+	    picturePath=Constant.FileDir.HEADPHOTO+user_id+".jpeg";
+
+
+
+
+	}
+
+	@Override
+	public void addListener() {
+		imageView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				final AlertDialog.Builder builder=new Builder(UserDataActivity.this);
+				builder.setItems(getResources().getStringArray(R.array.CategoryArray), new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface v, int postion) {
+						switch(postion){
+						// local photo
+						case 0: {
+							Intent picture = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+							startActivityForResult(picture, PICTURE);
+						}
+						break;
+						// local camera
+						case 1: {
+							Intent intent = new Intent(
+									"android.media.action.IMAGE_CAPTURE");
+							intent.putExtra(
+									MediaStore.EXTRA_OUTPUT,
+									Uri.fromFile(new File(
+											Environment
+											.getExternalStorageDirectory(),
+											"camera.jpg")));
+							intent.putExtra(
+									MediaStore.EXTRA_VIDEO_QUALITY, 0);
+							startActivityForResult(intent, CAMERA);
+						}
+						break;
+						default:
+							builder.show().dismiss();
+						}
+
+					}
+				});
+
+
+				Intent intent=new Intent(UserDataActivity.this,PictureChangeSizeShowActivity.class);
+				intent.putExtra("url", Constant.Api.GET_PHOTO+user_id);
+				startActivity(intent);
+			}
+		});
+
+		//		修改个人信息
+		changeBt.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				if(MainActivity.user_id!=0){
+					Bundle persondata=new Bundle();
+					PersonInfo personInfo=new PersonInfo(realname, age, sex,phone, birthday,address, introduction);
+					persondata.putSerializable("personInfo", personInfo);
+					Intent infoIntent=new Intent(UserDataActivity.this,InfoChangeActivity.class);
+					infoIntent.putExtra("user_id", user_id);
+					infoIntent.putExtra("username", username);
+					infoIntent.putExtras(persondata);
+					startActivityForResult(infoIntent, REQCODE);
+				}
+				else{
+					Intent signInIntent=new Intent(UserDataActivity.this,SignInActivity.class);
+					startActivity(signInIntent);
+					UserDataActivity.this.finish();}
+			}
+		});
+
+	}
+
+	@Override
+	public void showContent() {
+
+		Picasso.with(UserDataActivity.this).load(Constant.Api.GET_PHOTO+user_id).into(imageView);
+
+	}
+
+	class GetInfoTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		private int code;
+		private JSONObject result;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Api.INFO, list,
+						new JSONResponseHandler<JSONObject>() {
+
+					@Override
+					public JSONObject handlerJson(JSONObject json) {
+						if((json!=null)){
+							code = json.optInt("code");
+							if(code==1){
+								result=json.optJSONObject("result");
+							}
+
+
+						}
+						return json;
+					}
+				});
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject json) {
+			super.onPostExecute(json);
+			if((code==1)&&(result!=null)){
+				realname=result.optString("name");
+				age=result.optString("age");
+				phone=String.valueOf(result.optInt("phone"));
+				sex=result.optBoolean("sex")?"男":"女";
+				birthday=result.optString("birthday");
+				address=result.optString("address");
+				introduction=result.optString("introduction");
+
+				nameText.setText(realname);
+				ageText.setText(age);
+				phoneText.setText(phone);
+				sexText.setText(sex);
+				birthdayText.setText(birthday);
+				introductionText.setText(introduction);
+
+				LogUtils.v("info = "+address+" "+introduction+" "+birthday);
+
+				//				存入本地
+				editor.putString("realname", realname);
+				editor.putString("age", age);
+				editor.putString("sex", sex);
+				editor.putString("phone", phone);
+				editor.putString("birthday", birthday);
+				editor.putString("address", address);
+				editor.putString("introduction", introduction);
+
+			}
+		}
+
+	}
+
+	public void onActivityResult(int requestCode,int resultCode,Intent data){
+
+		if(requestCode==REQCODE && resultCode==INFORESET){
+			PersonInfo changeperson=(PersonInfo)data.getSerializableExtra("savedPerson");
+			nameText.setText(changeperson.getName());
+			ageText.setText(changeperson.getAge());
+			sexText.setText(changeperson.getSex());
+			phoneText.setText(changeperson.getPhone());
+			birthdayText.setText(changeperson.getBirthday());
+			introductionText.setText(changeperson.getIntroduction());
+
+		}
+
+		if (requestCode == CAMERA && resultCode == Activity.RESULT_OK) {
+			Drawable drawable = Drawable.createFromPath(new File(Environment
+					.getExternalStorageDirectory(), "camera.jpg")
+			.getAbsolutePath());
+			bm = BitmapExchangeDrawable.drawableToBitmap(drawable);
+			System.out.println("data-->" + data);
+			SaveToLocalPainting.saveHeadPhoto(user_id, bm);
+			picturePath=Constant.FileDir.HEADPHOTO+user_id+".jpeg";
+			imageView.setImageBitmap(bm);
+		} else if (requestCode == PICTURE && resultCode == Activity.RESULT_OK) {
+			Uri selectedImage = data.getData();
+			String[] filePathColumns={MediaStore.Images.Media.DATA};
+			Cursor c = this.getContentResolver().query(selectedImage, filePathColumns, null,null, null);
+			c.moveToFirst();
+			int columnIndex = c.getColumnIndex(filePathColumns[0]);
+			picturePath= c.getString(columnIndex);
+			bm=BitmapFactory.decodeFile(picturePath);
+			c.close();
+			imageView.setImageBitmap(bm);
+
+		}
+		
+		if(bm!=null){
+			
+//			TODO
+			
+		}
+			
+
+	}
+
+}
+

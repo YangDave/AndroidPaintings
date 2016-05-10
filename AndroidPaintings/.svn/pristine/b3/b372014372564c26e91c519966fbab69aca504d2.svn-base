@@ -1,0 +1,25 @@
+package com.vgpt.androidpaintings.test;
+
+import com.vgpt.androidpaintings.compoent.activity.MyApplication;
+
+import android.test.ApplicationTestCase;
+
+/**
+ * @author yuandunlong
+ *
+ */
+public class BaseTest extends ApplicationTestCase<MyApplication> {
+
+	public BaseTest() {
+
+		super(MyApplication.class);
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+
+		createApplication();
+	}
+
+}

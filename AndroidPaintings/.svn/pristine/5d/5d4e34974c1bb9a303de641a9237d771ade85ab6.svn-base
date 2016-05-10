@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" >
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:shrinkColumns="0"
+            android:stretchColumns="1" >
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/uploader" />
+
+                <TextView
+                    android:id="@+id/uploader"
+                    style="@style/tableRow_right"
+                    android:singleLine="true" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/author" />
+
+                <EditText
+                    android:id="@+id/author"
+                    style="@style/tableRow_right"
+                    android:singleLine="true" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/paintingname" />
+
+                <EditText
+                    android:id="@+id/paintingname"
+                    style="@style/tableRow_right"
+                    android:singleLine="true" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/creation_date" />
+
+                <Button
+                    android:id="@+id/creation_date"
+                    style="@style/tableRow_right_button"
+                    android:background="@drawable/shape_rectangle"
+                    android:text="@string/choose_time" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/category" />
+
+                <Button
+                    android:id="@+id/category"
+                    style="@style/tableRow_right_button"
+                    android:background="@drawable/shape_rectangle"
+                    android:text="@string/choose_category" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/size" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal" >
+
+                    <EditText
+                        android:id="@+id/height"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="number"
+                        android:singleLine="true" />
+
+                    <EditText
+                        android:id="@+id/width"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="number"
+                        android:singleLine="true" />
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/paintingintroduction" />
+
+                <EditText
+                    android:id="@+id/paintingintroduction"
+                    style="@style/tableRow_right" />
+            </TableRow>
+        </TableLayout>
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true"
+            android:paddingTop="15dp"
+            android:src="@drawable/ic_launcher" />
+    </LinearLayout>
+
+</ScrollView>

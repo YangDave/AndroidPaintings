@@ -1,0 +1,34 @@
+package com.vgpt.androidpaintings;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
+import android.view.Menu;
+
+public class MainActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        //���Դ���
+        final TextToSpeech tts=new TextToSpeech(this, new OnInitListener() {
+			
+			@Override
+			public void onInit(int arg0) {
+				// TODO Auto-generated method stub
+//				tts.setLanguage(Locale.CHINA);
+			}
+		});
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+    
+}

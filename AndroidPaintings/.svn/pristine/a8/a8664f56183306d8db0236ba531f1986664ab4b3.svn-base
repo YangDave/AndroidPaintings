@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    
+    <string name="info_change" >修改资料</string>
+    
+    <string name="show_image">返回</string>
+    
+    <string name="auction_title">拍卖详情</string>
+    <string name="my_collect_title">我的收藏</string>
+    <string name="my_focus_title">我的关注</string>
+    <string name="user_data_title">个人信息</string>
+    
+    <string name="edit_info">编辑资料</string>
+    <string name="upload">上传书画</string>
+</resources>

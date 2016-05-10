@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <RelativeLayout style="@style/self_title_bar_layout" >
+
+            <Button
+                android:id="@+id/maneuver_cancel"
+                style="@style/self_title_bar_button"
+                android:focusable="true"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/cancel" />
+
+            <Button
+                android:id="@+id/maneuver_ok"
+                style="@style/self_title_bar_button"
+                android:layout_alignBaseline="@id/maneuver_cancel"
+                android:layout_alignParentRight="true"
+                android:focusable="true"
+                android:background="@drawable/done" />
+
+            <TextView
+                style="@style/self_title_bar_title"
+                android:layout_alignBaseline="@id/maneuver_cancel"
+                android:layout_toLeftOf="@id/maneuver_ok"
+                android:layout_toRightOf="@id/maneuver_cancel"
+                android:text="@string/maneuver_add" />
+        </RelativeLayout>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp"
+            android:shrinkColumns="0"
+            android:stretchColumns="1" >
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/asso_name" />
+
+                <TextView
+                    android:id="@+id/asso_name"
+                    style="@style/tableRow_right"
+                    android:singleLine="true" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/exer_title" />
+
+                <EditText
+                    android:id="@+id/exer_title"
+                    style="@style/tableRow_right"
+                    android:singleLine="true" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/exer_begin" />
+
+                <EditText
+                    android:id="@+id/exer_begin"
+                    style="@style/tableRow_right"
+                    android:inputType="datetime"
+                    android:singleLine="true" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/exer_end" />
+
+                <EditText
+                    android:id="@+id/exer_end"
+                    style="@style/tableRow_right"
+                    android:inputType="datetime"
+                    android:singleLine="true" />
+            </TableRow>
+
+            <TableRow style="@style/tableRow" >
+
+                <TextView
+                    style="@style/tableRow_left"
+                    android:text="@string/exer_place" />
+
+                <EditText
+                    android:id="@+id/exer_place"
+                    style="@style/tableRow_right"
+                    android:singleLine="true" />
+            </TableRow>
+        </TableLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:gravity="center"
+            android:text="@string/exer_body"
+            android:textColor="@color/title"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/exer_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+</ScrollView>

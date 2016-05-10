@@ -1,0 +1,432 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class SignUpActivity extends Activity {
+	EditText muserEditText;
+	EditText mpwdEditText;
+	EditText mpwd2EditText;
+	EditText memailEditText;
+	Button msignUpButton;
+	Button msignInButton;
+	TextView mreminderText;
+	ToggleButton mtoggleButton;
+	SharedPreferences preference;
+	SharedPreferences.Editor editor;
+	SharedPreferences signInRecord;
+	SharedPreferences.Editor signInRecordEditor;
+	
+	String username;
+
+	public static void dispplayMyself(Intent intent, Activity a) {
+		intent.setClass(a, SignUpActivity.class);
+		a.startActivity(intent);
+
+	}
+
+	public static boolean isEmailAddressFormat(String email) {
+		boolean isExist = false;
+		Pattern pp = Pattern
+				.compile("^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$");
+		Matcher mm = pp.matcher(email);
+		boolean bb = mm.matches();
+		if (bb) {
+			isExist = true;
+		}
+		return isExist;
+
+	}
+
+	private static boolean isUserNameOrPwdFormat(String userNameOrPwd) {
+		boolean isUserNameOrPwd = false;
+		Pattern p = Pattern.compile("^[a-zA-Z0-9_-]+");
+		Matcher m = p.matcher(userNameOrPwd);
+		boolean b = m.matches();
+		if (b && userNameOrPwd.length() >= 8 && userNameOrPwd.length() <= 16) {
+			isUserNameOrPwd = true;
+		}
+
+		return isUserNameOrPwd;
+
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_signup);
+		ExitApplication.getInstance().addActivity(this);
+
+		muserEditText = (EditText) findViewById(R.id.userId);
+		mpwdEditText = (EditText) findViewById(R.id.pwdId);
+		memailEditText = (EditText) findViewById(R.id.emailId);
+		msignUpButton = (Button) findViewById(R.id.signUpId);
+		msignInButton = (Button) findViewById(R.id.signInId);
+		mpwd2EditText = (EditText) findViewById(R.id.pwd2Id);
+		msignUpButton.setOnClickListener(new OnClickListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onClick(View arg0) {
+				if (isUserNameOrPwdFormat(muserEditText.getText().toString())
+						&& isUserNameOrPwdFormat(mpwdEditText.getText().toString())
+						&& (mpwd2EditText.getText().toString().equals(mpwdEditText.getText().toString()))
+						&& isEmailAddressFormat(memailEditText.getText().toString())
+						) {
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("username", muserEditText.getText());
+					map.put("email", memailEditText.getText());
+					map.put("password", mpwdEditText.getText());
+					SignUpTask signUpTask = new SignUpTask();
+					signUpTask.execute(map);
+					
+				} else {
+					new OneButtonDialog(SignUpActivity.this).showDialog(
+							SignUpActivity.this, R.drawable.ic_launcher,
+							R.string.signupwarntitle, R.string.signupwarn);
+				}
+
+			}
+		});
+		msignInButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				Intent toSignInIntent = new Intent(SignUpActivity.this,
+						SignInActivity.class);
+
+				startActivity(toSignInIntent);
+				
+			}
+		});
+
+		muserEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus == false) {
+					if (StringUtils.isNotBlank(muserEditText.getText().toString())) {
+						if (isUserNameOrPwdFormat(muserEditText.getText()
+								.toString()) == false) {
+							OneButtonDialog userDialog = new OneButtonDialog(
+									SignUpActivity.this);
+							userDialog.showDialog(SignUpActivity.this,
+									R.drawable.ic_launcher,
+									R.string.userlengthwarntitle,
+									R.string.userlengthwarn);
+
+						} else { // used for connect
+							if(isEmailAddressFormat(memailEditText.getText().toString())){
+								Map<String, Object> usermap = new HashMap<String, Object>();
+								usermap.put("username", muserEditText.getText());
+								usermap.put("email",memailEditText.getText());
+								SignUpUsernameUniqueTask usernameUniqueTask = new SignUpUsernameUniqueTask();
+								usernameUniqueTask.execute(usermap);
+								
+							}
+
+							
+
+						}
+
+					}
+				}
+			}
+		});
+
+		mpwdEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus == false) {
+					if (mpwdEditText.getText().toString().length() != 0 ) {
+
+						if (!isUserNameOrPwdFormat(mpwdEditText.getText()
+								.toString())) {
+
+							new OneButtonDialog(SignUpActivity.this)
+									.showDialog(SignUpActivity.this,
+											R.drawable.ic_launcher,
+											R.string.pwdlengthwarntitle,
+											R.string.pwdlengthwarn);
+						} else {
+							if (mpwd2EditText.getText().toString().length() != 0) {
+								if (!mpwdEditText.getText().toString().equals(mpwd2EditText
+										.getText().toString())) {
+									new OneButtonDialog(SignUpActivity.this)
+											.showDialog(
+													SignUpActivity.this,
+													R.drawable.ic_launcher,
+													R.string.twicepwdnotequaltitle,
+													R.string.twicepwdnotequal);
+								}
+							}
+
+						}
+						if (mpwdEditText.getText().toString().equals(muserEditText
+								.getText().toString())) {
+
+							new OneButtonDialog(SignUpActivity.this)
+									.showDialog(SignUpActivity.this,
+											R.drawable.ic_launcher,
+											R.string.pwdequalusernametitle,
+											R.string.pwdequalusername);
+							mpwdEditText.requestFocus();
+						}
+					}
+				}
+			}
+
+		});
+		mpwd2EditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View arg0, boolean hasfocus) {
+				if(!hasfocus){
+					
+				if (mpwd2EditText.getText().toString().length() != 0) {
+					if (isUserNameOrPwdFormat(mpwd2EditText.getText()
+							.toString())) {
+						if (mpwdEditText.getText().toString().length() != 0) {
+							if (!mpwd2EditText.getText().toString().equals(mpwdEditText
+									.getText().toString())) {
+								new OneButtonDialog(SignUpActivity.this)
+										.showDialog(SignUpActivity.this,
+												R.drawable.ic_launcher,
+												R.string.twicepwdnotequaltitle,
+												R.string.twicepwdnotequal);
+							}
+						}
+					} else {
+						if(StringUtils.isNotBlank(mpwdEditText.getText().toString()))
+						new OneButtonDialog(SignUpActivity.this).showDialog(
+								SignUpActivity.this, R.drawable.ic_launcher,
+								R.string.pwdlengthwarntitle,
+								R.string.pwdlengthwarn);
+					}
+				}
+			}}
+		});
+		
+     memailEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				String email=memailEditText.getText().toString();
+				if (hasFocus == false) {
+					if (StringUtils.isNotBlank(email)
+							&& !isEmailAddressFormat(memailEditText.getText()
+									.toString())) {
+						new OneButtonDialog(SignUpActivity.this).showDialog(
+								SignUpActivity.this, R.drawable.ic_launcher,
+								R.string.emailwarntitle, R.string.emailwarn);
+					}
+					else{
+						if(isUserNameOrPwdFormat(muserEditText.getText().toString())){
+							Map<String, Object> useremailmap = new HashMap<String, Object>();
+							useremailmap.put("username", muserEditText.getText());
+							useremailmap.put("email",memailEditText.getText());
+							SignUpUsernameUniqueTask usernameUniqueTask = new SignUpUsernameUniqueTask();
+							usernameUniqueTask.execute(useremailmap);
+						}
+					}
+
+				}
+
+			}
+		});
+	}
+
+	class SignUpTask extends AsyncTask<Map<String, Object>, Void, JSONObject> {
+		public boolean signUpSuccess = false;
+		private int retUser_id;
+
+		@SuppressLint("UseValueOf") @Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Api.SIGN_UP, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									JSONObject ret = json
+											.optJSONObject("result");
+
+									if (ret != null) {
+
+										signUpSuccess = ret.optBoolean(
+												"success", false);
+										retUser_id=ret.optInt("user_id",0);
+												}
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			if (signUpSuccess) {
+				username=muserEditText.getText().toString();
+				preference=getSharedPreferences(username, MODE_PRIVATE);
+				editor=preference.edit();
+				editor.putString("username",username);
+				editor.putInt("user_id", retUser_id);
+				editor.putString("email", memailEditText.getText().toString());
+				editor.commit();
+				
+				signInRecord=getSharedPreferences("signInRecord", MODE_PRIVATE);
+				signInRecordEditor=signInRecord.edit();
+				signInRecordEditor.putString("lastSignInUser", username);
+				signInRecordEditor.commit();
+				
+				Bundle userdata = new Bundle();
+				userdata.putSerializable("username", username);
+				userdata.putSerializable("user_id", retUser_id);
+				Intent intent = new Intent(SignUpActivity.this,
+						MainActivity.class);
+				intent.putExtras(userdata);
+				startActivity(intent);
+				
+				
+				
+			}
+			else{
+				Toast.makeText(SignUpActivity.this, "注册失败", Toast.LENGTH_LONG).show();
+			}
+
+		}
+
+	}
+
+	class SignUpUsernameUniqueTask extends
+			AsyncTask<Map<String, Object>, Void, JSONObject> {
+		public Boolean userNameUnique = false;
+		private int checkCode=0;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Api.CHECk_USER, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null){
+									checkCode=json.optInt("code");
+								
+									if(json.optInt("code") == 1) {
+									JSONObject ret = json
+											.optJSONObject("result");
+									
+
+									if (ret != null) {
+
+										userNameUnique = ret.optBoolean(
+												"valid", false);
+									}
+
+								}
+									}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+
+				userNameUnique = false;
+
+				LogUtils.e(e);
+
+			}
+
+			return null;
+		}
+
+		
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			if (!userNameUnique && (checkCode==1)) {
+				new OneButtonDialog(SignUpActivity.this).showDialog(
+						SignUpActivity.this, R.drawable.ic_launcher,
+						R.string.usernameuniquetitle, R.string.usernameunique);
+			}
+			else{
+				new OneButtonDialog(SignUpActivity.this).showDialog(
+						SignUpActivity.this, R.drawable.ic_launcher,
+						R.string.connectfalsetitle, R.string.connectfalse);
+			}
+		}
+
+	}
+}

@@ -1,0 +1,79 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+  <LinearLayout
+        android:id="@+id/btn_container"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#F5F5F5"
+         >
+        
+        <Button
+            android:id="@+id/all_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="12sp"
+            android:text="全部" />
+         <Button
+             android:id="@+id/figure_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_weight="1"
+            android:text="人物" />
+         
+          <Button
+              android:id="@+id/landscape_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:layout_weight="1"
+            android:text="风景" />
+           <Button
+               android:id="@+id/bird_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:layout_weight="1"
+            android:text="鸟兽" />
+            <Button
+                android:id="@+id/insect_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:layout_weight="1"
+            android:text="虫鱼" />
+             <Button
+                 android:id="@+id/more_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:layout_weight="1"
+            android:text="其他" />
+            <!-- <Button
+                  android:id="@+id/button7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+            android:text="最后一个" />  --> 
+    </LinearLayout>  
+   
+    
+<ListView android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:divider="#f00"
+    android:id="@+id/listview_container">
+    
+    
+    
+</ListView>
+
+
+
+</LinearLayout>

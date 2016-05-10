@@ -1,0 +1,208 @@
+package com.vgpt.androidpaintings.compoent.activity.user;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.application.ExitApplication;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.activity.dialog.WaitingDialog;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.interfaceImpl.MyActivity;
+import com.vgpt.androidpaintings.interfacepackage.MyActivityInterface;
+import com.vgpt.androidpaintings.utils.AsycTaskWithWaitingDialogUtil;
+import com.vgpt.androidpaintings.utils.AsycTaskWithWaitingDialogUtil.OnPostWithDialogInterface;
+import com.vgpt.androidpaintings.utils.DeviceUtil;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class SignInActivity extends MyActivity{
+
+	EditText muserEditText;
+	EditText mpwdEditText;
+	Button msignInButton;
+	TextView msignUpView,forgetPassView;
+	ImageView imageView;
+
+
+	SharedPreferences preference;
+	SharedPreferences.Editor editor;
+	SharedPreferences signInRecord;
+	SharedPreferences.Editor signInRecordEditor;
+
+
+	String username;
+	int userId;
+
+//	WaitingDialog dialog;
+
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+
+		DeviceUtil.bePortrait(SignInActivity.this);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);//取消标题栏
+
+		getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN ,
+				WindowManager.LayoutParams. FLAG_FULLSCREEN);//全屏
+
+		setContentView(R.layout.activity_sign_in);
+
+		loadPage(this);
+
+
+	}
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+	}
+	private boolean isUserNameOrPwdFormat(String userNameOrPwd){
+
+		boolean isUserNameOrPwd=false;
+		Pattern p=Pattern.compile("^[a-zA-Z0-9_-]+");
+		Matcher m=p.matcher(userNameOrPwd);
+		boolean b=m.matches();
+		if(b && userNameOrPwd.length()>=6 && userNameOrPwd.length()<=16){
+			isUserNameOrPwd=true;
+		}
+
+
+		return isUserNameOrPwd;
+
+	}
+
+	public void signUp(View source) {
+
+		Intent signUpIntent = new Intent(SignInActivity.this,
+				SignUpActivity.class);
+
+		startActivity(signUpIntent);
+		SignInActivity.this.finish();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void signIn(View source) {
+
+		if(isUserNameOrPwdFormat(muserEditText.getText().toString())&&
+				isUserNameOrPwdFormat(mpwdEditText.getText().toString())){
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("username", muserEditText.getText());
+			map.put("password", mpwdEditText.getText());
+			
+			final AsycTaskWithWaitingDialogUtil atu = new AsycTaskWithWaitingDialogUtil(SignInActivity.this,Constant.Api.SIGN_IN,new OnPostWithDialogInterface(){
+
+				@Override
+				public void code_1(JSONObject json) {
+					
+					LogUtils.v("========="+json.optInt("code")+"=======");
+					
+					JSONObject result = json.optJSONObject("result");
+					if(result != null){
+						
+					boolean	signInIsSuccess = result.optBoolean("success");
+					int retUser_id=result.optInt("user_id",0);
+					doPostExecute(signInIsSuccess, retUser_id);
+						
+					}
+				}
+			});
+			atu.execute(map);
+
+
+
+		}
+
+		else { Toast.makeText(SignInActivity.this, R.string.userorpwdlengthwarn, Toast.LENGTH_LONG).show();
+
+		}
+	}
+
+
+	@Override
+	public void findView() {
+
+		muserEditText = (EditText) findViewById(R.id.signInUserId);
+		mpwdEditText = (EditText) findViewById(R.id.signInPwdId);
+		msignInButton = (Button) findViewById(R.id.signInButtonId);
+		msignUpView = (TextView) findViewById(R.id.register);
+		forgetPassView = (TextView)findViewById(R.id.forgetPass);
+		imageView=(ImageView)findViewById(R.id.image);
+
+	}
+	@Override
+	public void doReady() {
+
+	}
+	@Override
+	public void addListener() {
+
+	}
+	@Override
+	public void showContent() {
+
+	}
+
+	private void doPostExecute(Boolean signInIsSuccess, int retUser_id){
+
+		if (signInIsSuccess){
+			username=muserEditText.getText().toString();
+			preference=getSharedPreferences(username, MODE_PRIVATE);
+			editor=preference.edit();
+			editor.putString("username", username);
+			editor.putInt("user_id", retUser_id);
+			editor.commit();
+
+
+
+			signInRecord=getSharedPreferences("signInRecord", MODE_PRIVATE);
+			signInRecordEditor=signInRecord.edit();
+			signInRecordEditor.putString("lastSignInUser", username);
+			signInRecordEditor.putInt("lastSignInUserId",retUser_id);
+			signInRecordEditor.commit();
+
+
+			Intent intent=new Intent(SignInActivity.this,MainActivity.class);
+			intent.putExtra("user_id", retUser_id);
+			intent.putExtra("username", username);
+			startActivity(intent);
+			SignInActivity.this.finish();
+
+
+		}
+		else{
+			Toast.makeText(SignInActivity.this,"登录失败", Toast.LENGTH_LONG).show();
+		}
+
+	}
+
+
+}

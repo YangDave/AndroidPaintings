@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   
+    android:orientation="vertical" >
+    
+    <RelativeLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <TextView 
+        android:id="@+id/textId"
+        android:text="@string/asso_info"
+        android:paddingTop="20dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:gravity="center_horizontal"/>
+    <Button 
+        android:id="@+id/joinasso"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/textId"
+        android:text="@string/joinasso"
+        />
+    </RelativeLayout>
+    <RelativeLayout 
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+         android:paddingTop="20dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+    
+    <TableLayout 
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        
+        android:stretchColumns="1"
+        android:shrinkColumns="0">
+        <TableRow android:paddingTop="10dp">
+            <TextView android:text="协会名称:"
+                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <TextView 
+                android:id="@+id/asso_name"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </TableRow>
+        <TableRow android:paddingTop="10dp">
+            <TextView android:text="创  始  人:"
+                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <TextView 
+                android:id="@+id/asso_founder"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+         </TableRow>   
+            <TableRow android:paddingTop="10dp">
+            <TextView android:text="现任会长:"
+                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <TextView 
+                android:id="@+id/asso_president"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </TableRow>
+        <TableRow android:paddingTop="10dp">
+            <TextView android:text="创建时间:"
+                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <TextView 
+                android:id="@+id/asso_creation_date"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </TableRow>
+        <TableRow android:paddingTop="10dp">
+            <TextView android:text="协会介绍:"
+                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <TextView 
+                android:id="@+id/asso_introduction"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </TableRow>
+    </TableLayout>
+    
+    <ImageView 
+        android:id="@+id/asso_mark"
+        android:layout_height="60dp"
+        android:layout_width="60dp"
+        android:layout_alignParentRight="true"/>
+    </RelativeLayout>
+    
+
+</LinearLayout>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    >
+
+<ScrollView 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="10dp"
+    android:orientation="vertical" >
+    
+    <RelativeLayout 
+        android:layout_height="61dp"
+        android:paddingBottom="10dp"
+        android:layout_width="match_parent"
+        >
+        <ImageView 
+            
+            android:id="@+id/headPhoto"
+            android:layout_width="61dp"
+            android:layout_height="61dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher"
+            android:layout_alignParentLeft="true"
+            />
+        
+        <LinearLayout 
+            android:layout_toRightOf="@id/headPhoto"
+             android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:orientation="vertical">
+            
+            <TextView 
+                android:id="@+id/uploader"
+                android:clickable="true"
+                android:textSize="18sp"
+                android:textColor="@color/title"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            
+            <TextView 
+                android:id="@+id/date_on"
+                android:textSize="12sp"
+                android:gravity="bottom"
+                android:textColor="@color/light_text"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            
+        </LinearLayout>
+        
+        <Button 
+            android:id="@+id/focus"
+            android:layout_height="36dp"
+            android:layout_width="102dp"
+            android:background="@drawable/button_sign_in"
+            android:layout_alignParentRight="true"
+            android:text="@string/focus"
+            android:layout_centerVertical="true"
+            />
+        
+    </RelativeLayout>
+    <TextView
+         android:layout_height="1dp"
+         android:layout_width="match_parent"
+         android:background="@color/light_text" />
+    
+        <LinearLayout 
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:paddingTop="10dp"
+            android:orientation="vertical">
+        
+            <LinearLayout 
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:orientation="horizontal">
+        <TextView 
+        android:id="@+id/name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="18sp"
+        android:layout_gravity="left"
+        android:textColor="@color/title"
+        android:gravity="left" />
+        
+        
+        <TextView 
+            android:id="@+id/category"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="right"
+            android:gravity="end"/>
+        </LinearLayout>
+        
+        <TextView 
+            android:id="@+id/count"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            />
+        
+        <TextView 
+            android:id="@+id/introduction"
+            android:paddingTop="5dp"
+            android:textSize="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+                />
+        
+        <ImageView 
+        android:id="@+id/image"
+        android:layout_gravity="center_horizontal"
+        android:scaleType="centerInside"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+        
+        <TextView 
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/latestcomment"
+            android:textSize="20sp"
+            />
+        </LinearLayout>
+        
+        
+    
+    
+    
+    
+    <TableLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        
+        android:visibility="gone"
+        android:stretchColumns="1"
+        android:shrinkColumns="0">
+        <TableRow android:paddingTop="3dp">
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="作      者:"
+                android:gravity="center_horizontal"/>
+            <TextView 
+                android:id="@+id/author"
+                android:textSize="20sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </TableRow>
+        <TableRow android:paddingTop="3dp">
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="20sp"
+                android:text="创作时间:"
+                android:gravity="center_horizontal"/>
+            <TextView android:id="@+id/date_creation"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_width="match_parent"/>
+        </TableRow>
+        <TableRow android:paddingTop="3dp" >
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="尺      寸:"
+                android:textSize="20sp"
+                android:gravity="center_horizontal"/>
+            <TextView android:id="@+id/size"
+                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"/>
+        </TableRow>
+        <TableRow android:dividerPadding="3dp" >
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="是否认证:"
+                android:textSize="20sp"
+                android:gravity="center_horizontal"/>
+            <TextView android:id="@+id/identification"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_width="match_parent"/>
+        </TableRow>
+        
+    </TableLayout>
+    
+     <TextView android:paddingTop="3dp"
+         
+               android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="简   介"
+                android:textSize="20sp"
+                android:gravity="center_horizontal"/>
+     <TextView 
+         android:paddingTop="3dp"
+         android:visibility="gone"
+         android:textSize="20sp"
+           android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+     <LinearLayout 
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         
+         android:visibility="gone"
+         android:orientation="horizontal">
+         <Button
+             android:id="@+id/previous"
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             style="@android:attr/buttonBarButtonStyle"
+             android:text="上一幅"
+             android:layout_weight="1"></Button>
+         
+          <Button
+             android:id="@+id/next"
+             style="@android:attr/buttonBarButtonStyle"
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:text="下一幅"
+             android:layout_weight="1"/>
+     </LinearLayout>
+     <Button 
+         android:id="@+id/getcomment"
+         android:layout_height="wrap_content"
+         
+         
+         android:visibility="gone"
+         android:layout_width="match_parent"
+         android:text="查看评论"
+         />
+    
+
+</LinearLayout>
+</ScrollView>
+
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="25dp"
+    android:orientation="horizontal"
+    android:layout_alignParentBottom="true"
+    >
+    <TextView 
+        android:id="@+id/comment"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:textSize="15sp"
+        android:text="评论 10"
+        android:gravity="center"
+        android:background="@drawable/shape_rectangle"
+        />
+    <TextView 
+        android:id="@+id/collect"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:textSize="15sp"
+        android:text="收藏  13"
+         android:gravity="center"
+        android:background="@drawable/shape_rectangle"
+        />
+    <TextView 
+        android:id="@+id/recommendation"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:textSize="15sp"
+        android:text="推荐  9"
+         android:gravity="center"
+        android:background="@drawable/shape_rectangle"
+        />
+    
+    
+</LinearLayout>
+
+</RelativeLayout>

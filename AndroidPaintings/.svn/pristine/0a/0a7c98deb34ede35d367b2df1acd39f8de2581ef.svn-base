@@ -1,0 +1,48 @@
+package com.vgpt.androidpaintings.test;
+
+import android.graphics.Bitmap;
+import android.view.View;
+import cn.trinea.android.common.entity.FailedReason;
+import cn.trinea.android.common.service.impl.ImageMemoryCache.OnImageCallbackListener;
+
+public class BitmapCacheSingleInstance implements OnImageCallbackListener {
+
+	@Override
+	public void onPreGet(String imageUrl, View view) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onGetNotInCache(String imageUrl, View view) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onGetSuccess(String imageUrl, Bitmap loadedImage, View view,
+			boolean isInCache) {
+		// TODO Auto-generated method stub
+		
+		
+	}
+
+	@Override
+	public void onGetFailed(String imageUrl, Bitmap loadedImage, View view,
+			FailedReason failedReason) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private static BitmapCacheSingleInstance bcsi = null;
+	
+	public static BitmapCacheSingleInstance getInstance(){
+		
+		if(bcsi == null){
+			bcsi = new BitmapCacheSingleInstance();
+		}
+		
+		return bcsi;
+		
+	}
+}

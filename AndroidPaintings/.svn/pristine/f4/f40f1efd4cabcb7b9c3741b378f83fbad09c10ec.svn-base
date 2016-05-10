@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/activity_container_paddingormargin" >
+
+        <ImageView
+            android:id="@+id/mark"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/bg_border"
+            android:clickable="true"
+            android:src="@drawable/ic_launcher" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/associationname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:paddingTop="10dp"
+                android:textSize="15sp" />
+
+            <Button
+                android:layout_width="120dp"
+                android:layout_height="35dp"
+                android:background="@drawable/button_selector_sign"
+                android:text="@string/asso_focus"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/light_text" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="3dp"
+        android:padding="@dimen/activity_container_paddingormargin" >
+
+        <TableRow>
+            
+            <ImageView
+                android:id="@+id/association_works"
+                style="@style/asso_page_table_imagebutton_left"
+                android:background="@drawable/work" />
+
+            <ImageView
+                android:id="@+id/association_member"
+                style="@style/asso_page_table_imagebutton_right"
+                android:background="@drawable/people" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+            <ImageView
+                android:id="@+id/association_notice"
+                style="@style/asso_page_table_imagebutton_left"
+                android:background="@drawable/alert" />
+
+            <ImageView
+                android:id="@+id/association_activity"
+                style="@style/asso_page_table_imagebutton_right"
+                android:background="@drawable/activity" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+            <ImageView
+                android:id="@+id/association_info"
+                style="@style/asso_page_table_imagebutton_left"
+                android:background="@drawable/info" />
+
+            <ImageView
+                android:id="@+id/association_more"
+                style="@style/asso_page_table_imagebutton_right" />
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>

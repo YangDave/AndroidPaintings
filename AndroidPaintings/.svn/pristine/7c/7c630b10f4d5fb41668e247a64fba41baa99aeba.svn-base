@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="3dp"
+    android:paddingRight="3dp"
+    android:paddingTop="10dp" >
+
+    <ImageView
+        android:id="@+id/gallery_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="matrix"
+        android:src="@drawable/ic_launcher" />
+
+    <TextView
+        android:id="@+id/uploaderText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/gallery_image"
+        android:layout_marginLeft="57dp"
+        android:textSize="@dimen/gallery_item_uploadername" />
+
+    <TextView
+        android:id="@+id/uploadTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/uploaderText"
+        android:layout_alignParentRight="true"
+        android:paddingRight="5dp"
+        android:textSize="@dimen/gallery_item_date" />
+
+    <ImageView
+        android:id="@+id/headPhoto"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignBottom="@id/uploaderText"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="5dp"
+        android:scaleType="centerInside" />
+
+    <TextView
+        android:id="@+id/nameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/uploaderText"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:textSize="@dimen/gallery_item_picname" />
+
+    <TextView
+        android:id="@+id/category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/nameText"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="5dp"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/focus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/nameText"
+        android:layout_marginLeft="5dp"
+        android:textSize="12sp" />
+
+</RelativeLayout>

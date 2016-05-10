@@ -1,0 +1,226 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.provider.MediaStore.Images.Media;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.CompressImage;
+
+
+public class LocalPhotoActivity extends Activity{
+	
+	ListView photoList;
+	final ArrayList<String> names=new ArrayList<String>();
+	final ArrayList<String> fileaddress=new ArrayList<String>();
+	PhotoAdapter adapter=null;
+	List<Map<String,Object>> listItems;
+	Intent photoChangeIntent;
+	
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_localphoto);
+		
+		photoList=(ListView)findViewById(R.id.photolist);
+		names.clear();
+		fileaddress.clear();
+		photoChangeIntent=getIntent();
+		Cursor cursor=getContentResolver()
+				.query(Media.EXTERNAL_CONTENT_URI,null,null,null,null);
+		
+		while(cursor.moveToNext()){
+			String name=cursor.getString(cursor.getColumnIndex(Media.DISPLAY_NAME));
+			byte[] data=cursor.getBlob(cursor.getColumnIndex(Media.DATA));
+			names.add(name);
+			fileaddress.add(new String(data,0,data.length-1));
+		}
+		
+		 listItems=new ArrayList<Map<String,Object>>();
+		for(int i=0;i<2;i++){
+			Map<String,Object> listItem=new HashMap<String, Object>();
+			listItem.put("photo1",fileaddress.get(3*i));
+			listItem.put("photo2", fileaddress.get(3*i+1));
+			listItem.put("photo3", fileaddress.get(3*i+2));
+			listItems.add(listItem);
+		}
+		adapter=new PhotoAdapter(this,listItems);
+		photoList.setAdapter(adapter);
+		adapter.notifyDataSetChanged();
+//		SimpleAdapter simpleAdapter=new SimpleAdapter(this,listItems,R.layout.photo_item,
+//				new String[]{"name"},new int[]{R.id.photoname});
+//		photoList.setAdapter(simpleAdapter);
+//		photoList.setOnItemClickListener(new OnItemClickListener() {
+//
+//			@Override
+//			public void onItemClick(AdapterView<?> adapterView, View arg1, int position,
+//					long arg3) {
+//				adapterView.getTag();
+//				AlertDialog.Builder builder=new Builder(getApplicationContext());
+//				View view=getLayoutInflater().inflate(R.layout.photoview, null);
+//				ImageView photo=(ImageView)view.findViewById(R.id.photo);
+//				photo.setImageBitmap(BitmapFactory.decodeFile(fileaddress.get(position)));
+//				builder.setPositiveButton("确定", new OnClickListener() {
+//					
+//					@Override
+//					public void onClick(DialogInterface dialog, int i) {
+//						// TODO Auto-generated method stub
+//						
+//					}
+//				});
+//				builder.setNegativeButton("取消", null);
+//				builder.setView(view);
+//				builder.show();
+//				
+//			}
+//		});
+//		
+		
+		
+	}
+	
+	class PhotoAdapter extends BaseAdapter{
+		private Context mContext;
+		private List<Map<String,Object>> mListItems;
+		
+		public PhotoAdapter(Context mContext,List<Map<String,Object>> mListItems){
+			this.mContext=mContext;
+			this.mListItems=mListItems;
+			
+		}
+		public void notifyDataSetChanged(){
+			super.notifyDataSetChanged();
+		}
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return mListItems.size();
+		}
+
+		@Override
+		public Object getItem(int arg0) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return position;
+		}
+		@Override
+		public View getView(int position, View convertView, ViewGroup group) {
+			// TODO Auto-generated method stub
+			
+			ItemViewHolder itemViewHolder = null;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(mContext).inflate(
+						R.layout.photo_items_three, null);
+				itemViewHolder = new ItemViewHolder();
+				convertView.setTag(itemViewHolder);
+
+			} else {
+				itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+			}
+
+			itemViewHolder.photo1 = (ImageView) convertView
+					.findViewById(R.id.image1);
+			itemViewHolder.photo2 = (ImageView) convertView
+					.findViewById(R.id.image2);
+			itemViewHolder.photo3 = (ImageView) convertView
+					.findViewById(R.id.image3);
+			Bitmap bm1=CompressImage.getimage((String) mListItems.get(position).get("photo1"));
+			Bitmap bm2=CompressImage.getimage((String)mListItems.get(position).get("photo2"));
+			Bitmap bm3=CompressImage.getimage((String)mListItems.get(position).get("photo3"));
+			itemViewHolder.photo1.setImageBitmap(bm1);
+			itemViewHolder.photo2.setImageBitmap(bm2);
+			itemViewHolder.photo3
+					.setImageBitmap(bm3);
+			final int i=position;
+			ImageClickListener listener=new ImageClickListener(i);
+			itemViewHolder.photo1.setOnClickListener(listener);
+			itemViewHolder.photo2.setOnClickListener(listener);
+			itemViewHolder.photo3.setOnClickListener(listener);
+			
+			
+		
+			return convertView;}
+		
+
+		class ItemViewHolder {
+
+			ImageView photo1,photo2,photo3;
+			
+		}
+		
+	}
+	class ImageClickListener implements OnClickListener{
+		private int i;
+		private int j;
+		
+		public ImageClickListener(int i){
+			this.i=i;
+		}
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			switch(v.getId()){
+			case R.id.image1:j=3*i;
+			break;
+			case R.id.image2:j=3*i+1;
+			break;
+			default:j=3*i+2;
+			break;
+			}
+			final AlertDialog.Builder builder=new Builder(LocalPhotoActivity.this);
+			View view=getLayoutInflater().inflate(R.layout.photoview, null);
+			ImageView image=(ImageView)view.findViewById(R.id.photo);
+			image.setImageBitmap(BitmapFactory.decodeFile(fileaddress.get(j)));
+			builder.setView(view);
+			builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					// TODO Auto-generated method stub
+					builder.show().dismiss();
+				}
+			});
+			builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					// TODO Auto-generated method stub
+					
+					photoChangeIntent.putExtra("photo_url", fileaddress.get(j));
+					photoChangeIntent.putExtra("photo_name",names.get(j));
+					LocalPhotoActivity.this.setResult(3,photoChangeIntent);
+					LocalPhotoActivity.this.finish();
+				}
+			});
+			builder.show();
+		}
+	}
+
+}

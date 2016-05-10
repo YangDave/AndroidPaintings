@@ -1,0 +1,141 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.compoent.adapter.FocusListAdapter;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+
+public class MyFocusActivity extends Activity{
+	ListView myFocusList;
+	FocusListAdapter adapter=null;
+	int user_id;
+	
+
+	@SuppressWarnings("unchecked")
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_my_focus);
+		ExitApplication.getInstance().addActivity(this);
+		myFocusList=(ListView)findViewById(R.id.myfocuslist);
+		user_id=MainActivity.user_id;
+		
+		
+		Toast.makeText(MyFocusActivity.this, user_id+"", Toast.LENGTH_LONG).show();
+		Map<String,Object> focusMap=new HashMap<String, Object>();
+		focusMap.put("user_id",user_id);
+		GetFocusTask getFocus=new GetFocusTask();
+		getFocus.execute(focusMap);
+			
+			adapter=new FocusListAdapter(MyFocusActivity.this,new ArrayList<Map<String,Object>>());
+			myFocusList.setAdapter(adapter);
+			
+		myFocusList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View mView, int position,
+					long arg3) {
+				Map<String,Object> map=(Map<String, Object>) adapter.getItem(position);
+				int focused_id=(Integer) map.get("focused_id");
+				Intent showFocusedInfoIntent=new Intent(MyFocusActivity.this,PersonInfoActivity.class);
+				showFocusedInfoIntent.putExtra("person_id", focused_id);
+				showFocusedInfoIntent.putExtra("user_id", user_id);
+				showFocusedInfoIntent.putExtra("focusedornot", true);
+				startActivity(showFocusedInfoIntent);
+				
+			}
+		});
+		
+		
+		
+		
+	}
+	class GetFocusTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		int checkCode;
+		List<Map<String,Object>> focused_list;
+		JSONArray focused_items;
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			for(int i=0;i<focused_items.length();i++){
+				Map<String,Object> item=new HashMap<String, Object>();
+				JSONObject jsonItem=focused_items.optJSONObject(i);
+				item.put("focusedname",jsonItem.optString("realname"));
+				item.put("person_id", jsonItem.optInt("real_id"));
+				adapter.getlistItems().add(item);
+			}
+			adapter.notifyDataSetChanged();
+			
+			
+		}
+
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			// TODO Auto-generated method stub
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Api.GET_FOCUS, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									focused_items = json
+											.optJSONArray("result");
+									
+									checkCode = json.optInt("code");
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+			
+		}
+		
+	}
+
+
+
+}

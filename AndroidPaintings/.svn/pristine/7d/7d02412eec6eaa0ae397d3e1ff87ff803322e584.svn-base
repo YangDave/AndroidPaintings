@@ -1,0 +1,40 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    
+     <dimen name="gallery_item_picname">13sp</dimen>
+    
+    <dimen name="gallery_item_uploadername">12sp</dimen>
+    
+    <dimen  name="gallery_item_date">12sp</dimen>
+    
+    <dimen name="shape_sign_in">5dp</dimen>
+    
+    <dimen name="shape_unknown">2dp</dimen>
+    
+    <dimen name="sign_pic_size">32dp</dimen>
+    
+    <dimen name="paddingLeft">5dp</dimen>
+    
+    <dimen name="paddingRight">5dp</dimen>
+    
+    <dimen name="paddingTop">5dp</dimen>
+    
+    <dimen name="auction_info_textsize">13sp</dimen>
+    
+    <dimen name="button_sign_text_size">16sp</dimen>
+    
+    <dimen name="user_info_text_size">18sp</dimen>
+    
+    <dimen name="top">32dp</dimen>
+    
+    
+    <dimen name="activity_container_paddingormargin">10dp</dimen>
+    
+    <dimen name="sign_textview_margintop">10dp</dimen>
+    
+    
+
+</resources>

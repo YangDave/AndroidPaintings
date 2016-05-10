@@ -1,0 +1,382 @@
+package com.vgpt.androidpaintings.compoent.fragment;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.PointF;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.FloatMath;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.GetBitmapFromLocal;
+import com.vgpt.androidpaintings.biz.SaveToLocalPainting;
+import com.vgpt.androidpaintings.compoent.activity.InfoChangeActivity;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.activity.MyCollectActivity;
+import com.vgpt.androidpaintings.compoent.activity.MyCommentPageActivity;
+import com.vgpt.androidpaintings.compoent.activity.MyFocusActivity;
+import com.vgpt.androidpaintings.compoent.activity.PersonInfo;
+import com.vgpt.androidpaintings.compoent.activity.PictureChangeSizeShowActivity;
+import com.vgpt.androidpaintings.compoent.activity.SettingsActivity;
+import com.vgpt.androidpaintings.compoent.activity.SignInActivity;
+import com.vgpt.androidpaintings.compoent.activity.paintings.MyUploadActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.LogUtils;
+import com.vgpt.androidpaintings.biz.SystemImageShow;
+
+/**
+ * @author Charles
+ * 用户个人信息，收藏，关注；
+ * TODO 用户设置
+ *
+ */
+public class Fragment4 extends Fragment implements OnClickListener{
+	TextView nameText;
+	TextView ageText;
+	TextView sexText;
+	TextView addressText;
+	TextView phoneText;
+	TextView birthdayText;
+	TextView introductionText;
+	ImageView imageView;
+	Bitmap bm;
+	 
+	 Boolean sexBoolean=false;
+	 SharedPreferences preferences;
+	 SharedPreferences.Editor editor;
+	 Button collectButton,settingsButton;
+	 Button myfocusButton,quitButton,myuploadButton,safeButton,mycomment;
+	 int user_id=MainActivity.user_id;
+	 String username=MainActivity.username;
+	 String realname;
+	 String age;
+     String phone;
+	 String sex;
+	String address;
+	String birthday;
+	String introduction;
+	String photo_url;
+	String photo_name;
+	String url;
+		
+	final static int SETTINGS=30;
+	final static int INFORESET=18;
+
+	 SharedPreferences signInRecord;
+	 SharedPreferences.Editor signInRecordEditor;
+	 
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		
+		super.onCreate(savedInstanceState);
+		
+	}
+
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			final Bundle savedInstanceState) {
+		
+		 final View rootView=inflater.inflate(R.layout.fragment4, container, false);
+		 
+		Button changeButton=(Button)rootView.findViewById(R.id.changeId);
+		
+		 nameText=(TextView)rootView.findViewById(R.id.realname);
+		ageText=(TextView)rootView.findViewById(R.id.age);
+		 sexText=(TextView)rootView.findViewById(R.id.sex);
+		 addressText=(TextView)rootView.findViewById(R.id.address);
+		phoneText=(TextView)rootView.findViewById(R.id.phone);
+		birthdayText=(TextView)rootView.findViewById(R.id.birthday);
+		introductionText=(TextView)rootView.findViewById(R.id.introduction);
+		
+		collectButton=(Button)rootView.findViewById(R.id.collectButton);
+		myfocusButton=(Button)rootView.findViewById(R.id.myfoucusButton);
+		imageView=(ImageView)rootView.findViewById(R.id.image);
+		quitButton=(Button)rootView.findViewById(R.id.quitButton);
+		settingsButton=(Button)rootView.findViewById(R.id.settingsButton);
+		myuploadButton=(Button)rootView.findViewById(R.id.myupload);
+		mycomment=(Button)rootView.findViewById(R.id.mycomment);
+		
+		
+		settingsButton.setOnClickListener(this);
+		
+		signInRecord=getActivity().getSharedPreferences("signInRecord", FragmentActivity.MODE_PRIVATE);
+		signInRecordEditor=signInRecord.edit();
+//		优先提取本地用户数据
+		preferences=getActivity().getSharedPreferences(username,FragmentActivity.MODE_PRIVATE);
+		editor=preferences.edit();
+		
+		realname=preferences.getString("name",null);
+		if(StringUtils.isNotBlank(realname)){
+			LogUtils.v("===============realname is not blank");
+			sex=preferences.getString("sex","男");
+			LogUtils.v("======"+sex);
+			phone=preferences.getString("phone",null);
+			address=preferences.getString("address",null);
+			age=preferences.getString("age",null);
+			birthday=preferences.getString("birthday",null);
+			introduction=preferences.getString("introduction", null);
+			nameText.setText(realname);
+			sexText.setText(sex);
+			phoneText.setText(phone);
+			addressText.setText(address);
+			phoneText.setText(phone);
+			birthdayText.setText(birthday);
+			introductionText.setText(introduction);
+		}
+		else{
+//			本地无用户数据则从网上获取
+			Map<String,Object> getInfoMap=new HashMap<String,Object>();
+			getInfoMap.put("user_id", user_id);
+			GetInfoTask task=new GetInfoTask();
+			task.execute(getInfoMap);
+		}
+		url=Constant.FileDir.HEADPHOTO+user_id+".jpeg";
+		
+		Picasso.with(getActivity()).load(Constant.Api.GET_PHOTO+user_id).into(imageView);
+		imageView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent=new Intent(getActivity(),PictureChangeSizeShowActivity.class);
+				intent.putExtra("url", Constant.Api.GET_PHOTO+user_id);
+				startActivity(intent);
+			}
+		});
+		
+//		我的收藏
+		collectButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+//				未登录需先登录
+				if(user_id!=0){
+					Intent collectIntent=new Intent(getActivity(),MyCollectActivity.class);
+					startActivity(collectIntent);	
+				}
+				else{
+					Intent signInIntent=new Intent(getActivity(),SignInActivity.class);
+					startActivity(signInIntent);
+					Toast.makeText(getActivity(), "你需要先登录",5000).show();
+				}
+			
+			}
+		});
+		
+//		我的关注
+		myfocusButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				if(user_id!=0){
+					Intent myfocusIntent=new Intent(getActivity(),MyFocusActivity.class);
+					myfocusIntent.putExtra("user_id", user_id);
+					startActivity(myfocusIntent);	
+				}
+				else{
+					Intent signInIntent=new Intent(getActivity(),SignInActivity.class);
+					startActivity(signInIntent);
+					
+				}
+				
+			}
+		});
+	
+//		修改个人信息
+		changeButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+//				SaveToLocalPainting.saveHeadPhoto(user_id, imageView.getDrawingCache());
+				if(MainActivity.user_id!=0){
+				Bundle persondata=new Bundle();
+				PersonInfo personInfo=new PersonInfo(realname, age, sex,phone, birthday,address, introduction);
+				persondata.putSerializable("personInfo", personInfo);
+				Intent infoIntent=new Intent(getActivity(),InfoChangeActivity.class);
+				infoIntent.putExtra("user_id", user_id);
+				infoIntent.putExtra("username", username);
+				infoIntent.putExtras(persondata);
+				startActivityForResult(infoIntent, 0);
+			}
+				else{
+					Intent signInIntent=new Intent(getActivity(),SignInActivity.class);
+					startActivity(signInIntent);
+					getActivity().finish();}
+				}
+		});
+		
+//		退出登录 needCheck
+		quitButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				signInRecordEditor.putString("lastSignInUser", null);
+				signInRecordEditor.apply();
+				String name=signInRecord.getString("lastSignInUser", null);
+				LogUtils.v("============="+name);
+				Intent signInIntent=new Intent(getActivity(),SignInActivity.class);
+				startActivity(signInIntent);
+				getActivity().finish();
+				
+				
+			}
+		});
+		myuploadButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				Intent intent=new Intent(getActivity(),MyUploadActivity.class);
+				intent.putExtra("user_id", user_id);
+				startActivity(intent);
+				
+			}
+		});
+		
+		mycomment.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				
+				Intent intent=new Intent(getActivity(),MyCommentPageActivity.class);
+				intent.putExtra("user_id", user_id);
+				startActivity(intent);
+				
+			}
+		});
+		
+		return rootView;
+		
+		
+		
+	}
+	public void onActivityResult(int requestCode,int resultCode,Intent intent){
+		
+		if(requestCode==0 && resultCode==INFORESET){
+			PersonInfo changeperson=(PersonInfo)intent.getSerializableExtra("savedPerson");
+			nameText.setText(changeperson.getName());
+			ageText.setText(changeperson.getAge());
+			sexText.setText(changeperson.getSex());
+			addressText.setText(changeperson.getAddress());
+			phoneText.setText(changeperson.getPhone());
+			birthdayText.setText(changeperson.getBirthday());
+			introductionText.setText(changeperson.getIntroduction());
+			bm=GetBitmapFromLocal.getBitmapAutoResize(url);
+			if(bm!=null){
+			imageView.setImageBitmap(bm);
+			}else{
+				Picasso.with(getActivity()).load(Constant.Api.GET_PHOTO+user_id).into(imageView);
+			}
+			
+			
+			
+		}
+		
+	}
+	class GetInfoTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		private int checkCode;
+		private JSONObject result;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Api.INFO, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if((json!=null)&&(json.optInt("code")==1)){
+									result=json.optJSONObject("result");
+									
+									}
+								return json;
+								}
+							});
+						}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			if((checkCode==1)&&(result!=null)){
+				realname=result.optString("name");
+				age=result.optString("age");
+				phone=String.valueOf(result.optInt("phone"));
+				sex=result.optBoolean("sex")?"男":"女";
+				birthday=result.optString("birthday");
+				address=result.optString("address");
+				introduction=result.optString("introduction");
+				
+				nameText.setText(realname);
+				ageText.setText(age);
+				phoneText.setText(phone);
+				sexText.setText(sex);
+				birthdayText.setText(birthday);
+				addressText.setText(address);
+				introductionText.setText(introduction);
+				
+//				存入本地
+				editor.putString("realname", realname);
+				editor.putString("age", age);
+				editor.putString("sex", sex);
+				editor.putString("phone", phone);
+				editor.putString("birthday", birthday);
+				editor.putString("address", address);
+				editor.putString("introduction", introduction);
+				
+			}
+		}
+		
+	}
+	@Override
+	public void onClick(View arg0) {
+//		TODO
+		
+	}
+	 
+}

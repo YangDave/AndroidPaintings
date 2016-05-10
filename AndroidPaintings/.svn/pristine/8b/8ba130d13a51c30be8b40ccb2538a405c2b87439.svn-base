@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+     <string name="forgetPass">忘记密码？</string>
+    <string name = "register">没有账号？立即注册</string>
+    
+    
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="cellphone">绑定手机号码</string>
+    
+    <string name="has_user">已有账号？登录</string>
+    
+     <string name= "focus">关注TA</string>
+     <string name="focused">已关注</string>
+     
+     <string name="user_center">个人中心</string>
+     
+     
+     
+     
+    
+    
+</resources>

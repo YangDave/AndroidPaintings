@@ -1,0 +1,153 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/btn_container"
+        android:layout_width="fill_parent"
+        android:layout_height="32dp"
+        android:background="#F5F5F5"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <RadioGroup
+            android:id="@+id/tab_category"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/allrb"
+                style="@style/tab_category"
+                android:checked="true"
+                android:text="@string/allcategory" />
+
+            <RadioButton
+                android:id="@+id/gongbirb"
+                style="@style/tab_category"
+                android:text="@string/gongbi" />
+
+            <RadioButton
+                android:id="@+id/xieyirb"
+                style="@style/tab_category"
+                android:text="@string/xieyi" />
+
+            <RadioButton
+                android:id="@+id/xihuarb"
+                style="@style/tab_category"
+                android:text="@string/xihua" />
+
+            <RadioButton
+                android:id="@+id/shufarb"
+                style="@style/tab_category"
+                android:text="@string/shufa" />
+
+            <RadioButton
+                android:id="@+id/otherrb"
+                style="@style/tab_category"
+                android:text="@string/others" />
+        </RadioGroup>
+    </LinearLayout>
+
+    <com.vgpt.androidpaintings.compoent.widget.AuctionScrollView
+        android:id="@+id/auction_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/btn_container"
+        android:paddingTop="3dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="18dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/retangle9" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:text="@string/latest_auction"
+                        android:textSize="@dimen/gallery_item_picname" />
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" >
+
+                    <ImageView
+                        android:id="@+id/sjx"
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/sjx" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toLeftOf="@id/sjx"
+                        android:text="@string/time_rank"
+                        android:textSize="@dimen/gallery_item_picname" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:id="@+id/first_column"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/second_column"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.vgpt.androidpaintings.compoent.widget.AuctionScrollView>
+
+    <TextView
+        android:id="@+id/loadmore"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:background="#CFCFCF"
+        android:gravity="center"
+        android:text="@string/loadmore_ing"
+        android:textSize="25sp"
+        android:visibility="invisible" />
+
+</RelativeLayout>

@@ -1,0 +1,42 @@
+package com.vgpt.androidpaintings.interfaceImpl;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+import com.vgpt.androidpaintings.application.ExitApplication;
+import com.vgpt.androidpaintings.application.MyApplication;
+import com.vgpt.androidpaintings.interfacepackage.MyActivityInterface;
+
+public abstract class MyActivity extends Activity implements MyActivityInterface{
+	
+	
+	protected  int user_id;
+	protected String username;
+	
+	protected void loadPage(Activity activity){
+		
+		ExitApplication.getInstance().addActivity(activity);
+		
+        MyApplication ma = (MyApplication)activity.getApplicationContext();
+        
+        user_id = ma.getUser_id();
+        username = ma.getUsername();
+		
+		findView();
+		
+		doReady();
+		
+		showContent();
+		
+		addListener();
+		
+		
+		
+		
+	}
+	
+	
+	
+	
+
+}

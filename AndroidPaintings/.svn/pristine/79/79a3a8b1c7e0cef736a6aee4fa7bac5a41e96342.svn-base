@@ -1,0 +1,457 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.DatePickerDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RadioGroup;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.BitmapExchangeDrawable;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.biz.SaveToLocalPainting;
+import com.vgpt.androidpaintings.compoent.activity.dialog.WaitingDialog;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class InfoChangeActivity extends Activity {
+
+	public int user_id;
+
+	EditText nameEdit;
+	EditText phoneEdit;
+	EditText addressEdit;
+	EditText ageEdit;
+	EditText introductionEdit;
+	Button birthdayEdit;
+	String sexreturn;
+	Intent infoIntent;
+	String username;
+	ImageView headphotochange;
+	final int PHOTOCHANGE = 3;
+	String photo_url;
+	String photo_name;
+	Bitmap bm;
+	byte[] photoByte;
+	
+	String picturePath;
+	
+	final static int PICTURE=11;
+	final static int CAMERA=10;
+
+	SharedPreferences preferences;
+	SharedPreferences.Editor editor;
+	
+	WaitingDialog dialog;
+
+	@SuppressLint("UseValueOf")
+	public static String intToString(int value) {
+		Integer integer = new Integer(value);
+		return integer.toString();
+	}
+
+	public static int stringToInt(String intstr) {
+		Integer integer;
+		integer = Integer.valueOf(intstr);
+		return integer.intValue();
+	}
+
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_infochange);
+
+		ExitApplication.getInstance().addActivity(this);
+		
+		infoIntent = getIntent();
+		user_id=infoIntent.getIntExtra("user_id", 0);
+		username=infoIntent.getStringExtra("username");
+		
+		preferences=getSharedPreferences(username,FragmentActivity.MODE_PRIVATE);
+		editor=preferences.edit();
+		String realname=preferences.getString("name",null);
+			String sex=preferences.getString("sex","男");
+			LogUtils.v("======"+sex);
+			String phone=preferences.getString("phone",null);
+			String address=preferences.getString("address",null);
+			String age=preferences.getString("age",null);
+			final String birthday=preferences.getString("birthday",null);
+			String introduction=preferences.getString("introduction", null);
+			
+			
+		nameEdit = (EditText) findViewById(R.id.namechange);
+		nameEdit.setText(realname);
+		nameEdit.setSelection(nameEdit.getText().length());
+		
+		final RadioGroup sexEdit = (RadioGroup) findViewById(R.id.sexgroup);
+		if (sex.equals("男")) {
+			   sexEdit.check(R.id.male);
+			
+			} else {
+				sexEdit.check(R.id.female);
+			}
+		
+		
+		phoneEdit = (EditText) findViewById(R.id.phonechange);
+		phoneEdit.setText(phone);
+		phoneEdit.setSelection(phoneEdit.getText().length());
+		
+		
+		addressEdit = (EditText) findViewById(R.id.addresschange);
+		addressEdit.setText(address);
+		addressEdit.setSelection(addressEdit.getText().length());
+		
+		ageEdit = (EditText) findViewById(R.id.agechange);
+		ageEdit.setText(age);
+		ageEdit.setSelection(ageEdit.getText().length());
+		
+		birthdayEdit = (Button) findViewById(R.id.birthdaychange);
+		birthdayEdit.setText(birthday);
+		
+		introductionEdit = (EditText) findViewById(R.id.selfintroduction);
+		introductionEdit.setText(introduction);
+		
+		
+		Button cancelButton = (Button) findViewById(R.id.cancelInfoChange);
+		Button okButton = (Button) findViewById(R.id.okinfoChange);
+
+		headphotochange = (ImageView) findViewById(R.id.headphotoId);
+		Picasso.with(InfoChangeActivity.this).load(Constant.Api.GET_PHOTO+user_id)
+		    .error(R.drawable.user).into(headphotochange);
+		headphotochange.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				final AlertDialog.Builder builder = new Builder(
+						InfoChangeActivity.this);
+				builder.setItems(
+						getResources().getStringArray(
+								R.array.headphotoItemsArray),
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int position) {
+								switch (position) {
+								// local photo
+								case 0: {
+									Intent picture = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+									startActivityForResult(picture, PICTURE);
+								}
+									break;
+								// local camera
+								case 1: {
+									Intent intent = new Intent(
+											"android.media.action.IMAGE_CAPTURE");
+									intent.putExtra(
+											MediaStore.EXTRA_OUTPUT,
+											Uri.fromFile(new File(
+													Environment
+															.getExternalStorageDirectory(),
+													"camera.jpg")));
+									intent.putExtra(
+											MediaStore.EXTRA_VIDEO_QUALITY, 0);
+									startActivityForResult(intent, CAMERA);
+								}
+									break;
+								default:
+									builder.show().dismiss();
+								}
+							}
+						});
+				builder.show();
+
+			}
+		});
+
+		
+		cancelButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent cancelIntent = new Intent(InfoChangeActivity.this,
+						MainActivity.class);
+				startActivity(cancelIntent);
+				InfoChangeActivity.this.finish();
+
+			}
+		});
+		
+		
+		
+		final int year;
+		final int month;
+		final int day;
+		if(birthday!=null){
+			final String[] date=birthday.split("-");
+			year=Integer.parseInt(date[0]);
+			month=Integer.parseInt(date[1]);
+			day=Integer.parseInt(date[2]);
+		}else{
+			Calendar c = Calendar.getInstance();
+			year=c.get(Calendar.YEAR);
+			month=c.get(Calendar.MONTH);
+			day=c.get(Calendar.DAY_OF_MONTH);
+		}
+		birthdayEdit.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				
+				
+				new DatePickerDialog(InfoChangeActivity.this,
+						new DatePickerDialog.OnDateSetListener() {
+
+							@Override
+							public void onDateSet(DatePicker view, int year,
+									int monthOfYear, int dayOfMonth) {
+
+								monthOfYear=monthOfYear+1;
+								birthdayEdit.setText(year + "-" + monthOfYear
+										+ "-" + dayOfMonth);
+								
+							}
+						}, year, month-1, day).show();
+			}
+		});
+		String s=null;
+		
+		LogUtils.v("年："+Calendar.YEAR+"  月："+Calendar.MONTH+" 日:"+Calendar.DAY_OF_MONTH);
+
+		okButton.setOnClickListener(new OnClickListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onClick(View v) {
+
+				int changedage = 0;
+				int changedphone = 0;
+
+				String changedbirthday = (String) birthdayEdit.getText();
+
+				if (StringUtils.isNumeric(ageEdit.getText().toString())) {
+					changedage = Integer.valueOf(ageEdit.getText().toString())
+							.intValue();
+				}
+				if (StringUtils.isNumeric(phoneEdit.getText().toString())) {
+
+					changedphone = Integer.valueOf(
+							phoneEdit.getText().toString()).intValue();
+
+				}
+				String changedaddress;
+				changedaddress = addressEdit.getText().toString();
+
+				Boolean changedsex = sexEdit.getCheckedRadioButtonId() == R.id.male ? true
+						: false;
+				sexreturn = sexEdit.getCheckedRadioButtonId() == R.id.male ? "男" : "女";
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("user_id", user_id);
+				map.put("name", nameEdit.getText().toString());
+				map.put("sex", changedsex);
+				map.put("phone", changedphone);
+				map.put("birthday", changedbirthday);
+				map.put("address", changedaddress);
+				map.put("age", changedage);
+				map.put("introduction", introductionEdit.getText().toString());
+				map.put("photo_name", String.valueOf(user_id) + ".jpg");
+
+				final InfoChangeTask infoChange = new InfoChangeTask();
+				infoChange.execute(map);
+//				dialog=new WaitingDialog(InfoChangeActivity.this);
+//				dialog.createDialog();
+//				dialog.setTitle("提交修改中");
+//				dialog.show();
+//			  final Handler handler= new Handler(){
+//
+//				@Override
+//				public void handleMessage(Message msg) {
+//					
+//					super.handleMessage(msg);
+//					
+//						dialog.cancel();
+//						infoChange.cancel(true);
+//						Toast.makeText(InfoChangeActivity.this, "网络不给力，请检查网络连接", Toast.LENGTH_LONG).show();
+//					
+//				}
+//			   };
+			   
+//			   new Thread(){
+//
+//				@Override
+//				public void run() {
+//					super.run();
+//					try {
+//						Thread.sleep(15000);
+//						handler.sendEmptyMessage(0);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//					
+//				}
+//				   
+//			   }.start();
+//				
+
+			}
+		});
+	}
+
+	class InfoChangeTask extends
+			AsyncTask<Map<String, Object>, Void, JSONObject> {
+		public boolean infoChange = false;
+		private int checkCode;
+		private JSONObject ret;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+
+			MultipartEntity postEntity = new MultipartEntity();
+			postEntity.addPart(
+					"Headphoto",
+					new FileBody(new File(picturePath)));
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				postEntity.addPart("json", new StringBody(json.toString()));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				MyHttpClient.getInstance().post(Constant.Api.USER_DATA,
+						postEntity, new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if ((json != null)
+										&& (json.optInt("code") == 1)) {
+									ret = json.optJSONObject("result");
+									checkCode = json.optInt("code");
+								}
+								return json;
+							}
+
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			dialog.dismiss();
+			if (ret != null) {
+				infoChange = ret.optBoolean("success");
+
+			}
+			if ((checkCode == 1) && infoChange) {
+				username = MainActivity.username;
+				preferences = getSharedPreferences(username, MODE_PRIVATE);
+				editor = preferences.edit();
+				editor.putString("name", nameEdit.getText().toString());
+				editor.putString("age", ageEdit.getText().toString());
+				editor.putString("phone", phoneEdit.getText().toString());
+				editor.putString("sex", sexreturn);
+				editor.putString("address", addressEdit.getText().toString());
+				editor.putString("birthday", birthdayEdit.getText().toString());
+				editor.putString("introduction", introductionEdit.getText()
+						.toString());
+				editor.commit();
+				if(bm!=null){
+					SaveToLocalPainting.saveHeadPhoto(user_id, bm);
+				}
+
+				Bundle changeInfoData = new Bundle();
+				PersonInfo savedPerson = new PersonInfo(nameEdit.getText()
+						.toString(), ageEdit.getText().toString(), sexreturn,
+						phoneEdit.getText().toString(), birthdayEdit.getText()
+								.toString(), addressEdit.getText().toString(),
+						introductionEdit.getText().toString());
+
+				changeInfoData.putSerializable("savedPerson", savedPerson);
+				infoIntent.putExtras(changeInfoData);
+
+				InfoChangeActivity.this.setResult(18, infoIntent);
+				InfoChangeActivity.this.finish();
+
+			} else {
+				Toast.makeText(InfoChangeActivity.this, "修改失败", Toast.LENGTH_LONG).show();
+				File file=new File(Constant.FileDir.HEADPHOTO+user_id+".jpeg");
+				if(file.exists()){
+					file.delete();
+				}
+			}
+		}
+	}
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == CAMERA && resultCode == Activity.RESULT_OK) {
+			Drawable drawable = Drawable.createFromPath(new File(Environment
+					.getExternalStorageDirectory(), "camera.jpg")
+					.getAbsolutePath());
+			bm = BitmapExchangeDrawable.drawableToBitmap(drawable);
+			System.out.println("data-->" + data);
+			SaveToLocalPainting.saveHeadPhoto(user_id, bm);
+			picturePath=Constant.FileDir.HEADPHOTO+user_id+".jpeg";
+		} else if (requestCode == PICTURE && resultCode == Activity.RESULT_OK) {
+			   Uri selectedImage = data.getData();
+			   String[] filePathColumns={MediaStore.Images.Media.DATA};
+			   Cursor c = this.getContentResolver().query(selectedImage, filePathColumns, null,null, null);
+			   c.moveToFirst();
+			   int columnIndex = c.getColumnIndex(filePathColumns[0]);
+			   picturePath= c.getString(columnIndex);
+			   bm=BitmapFactory.decodeFile(picturePath);
+			   c.close();
+			
+		}
+		
+		
+		headphotochange.setImageBitmap(bm);
+		LogUtils.v("user_id"+user_id);
+
+		
+	}
+}

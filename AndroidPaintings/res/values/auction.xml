@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="remaintime">剩余时间：</string>
+    <string name="current_price">当前价格：</string>
+    <string name="auctiontimes">人出价</string>
+    
+    <string name="auction_set_price">出 价</string>
+    
+    <string name="price_record">出价记录</string>
+    
+    <string name="price_null_not_allowed">出价不能为空！</string>
+    
+    <string name="price_under_current_warnning">出价不能低于当前价格！</string>
+    
+    <string name="set_price_success">出价成功！</string>
+    
+    <string name="set_price_failure">出价失败！</string>
+    
+    
+</resources>

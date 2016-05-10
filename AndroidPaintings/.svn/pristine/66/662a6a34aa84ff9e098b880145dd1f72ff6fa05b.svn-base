@@ -1,0 +1,28 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import android.app.Application;
+import android.content.Context;
+
+/**
+ * @author yuandunlong
+ *
+ */
+public class MyApplication extends Application{
+	
+	
+	public static Context applicationContext;
+	
+	public static interface Constant{
+		
+		int env=1;
+	}
+	
+	@Override
+	public void onCreate(){
+		
+		super.onCreate();
+		applicationContext=getApplicationContext();
+		
+	}
+
+}

@@ -1,0 +1,63 @@
+package com.vgpt.androidpaintings.entity;
+
+import java.io.Serializable;
+import java.util.Map;
+
+public class AuctionItem implements Serializable {
+	
+	private int pic_id;
+	private String pic_name;
+	private int remain_time;
+	private String introduction;
+	private int current_price;
+	private int auction_id;
+	
+	
+	public int getAuction_id() {
+		return auction_id;
+	}
+	public void setAuction_id(int auction_id) {
+		this.auction_id = auction_id;
+	}
+	public int getPic_id() {
+		return pic_id;
+	}
+	public void setPic_id(int pic_id) {
+		this.pic_id = pic_id;
+	}
+	public String getPic_name() {
+		return pic_name;
+	}
+	public void setPic_name(String pic_name) {
+		this.pic_name = pic_name;
+	}
+	public int getRemain_time() {
+		return remain_time;
+	}
+	public void setRemain_time(int remain_time) {
+		this.remain_time = remain_time;
+	}
+	public String getIntroduction() {
+		return introduction;
+	}
+	public void setIntroduction(String introduction) {
+		this.introduction = introduction;
+	}
+	public int getCurrent_price() {
+		return current_price;
+	}
+	public void setCurrent_price(int current_price) {
+		this.current_price = current_price;
+	}
+	
+	public AuctionItem(Map<String,Object> map){
+		this.pic_id=(Integer) map.get("pic_id");
+		this.introduction=(String)map.get("introduction");
+		this.current_price=(Integer)map.get("current_price");
+		this.remain_time=(Integer)map.get("remain_time");
+		this.pic_name=(String)map.get("pic_name");
+		this.auction_id=(Integer)map.get("auction_id");
+	}
+	
+
+}

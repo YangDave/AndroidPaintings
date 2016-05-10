@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.vgpt.androidpaintings"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="18" />
+
+    <uses-permission android:name="android.permission.INTERNET" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WHITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RESTART_PACKAGES" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_FORMAT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name="com.vgpt.androidpaintings.application.MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:screenOrientation="landscape"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.MainActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.user.SignActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.user.InfoChangeActivity"
+            android:label="@string/info_change"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.paintings.ShowImageActivity"
+            android:label="@string/show_image"
+            android:parentActivityName="com.vgpt.androidpaintings.compoent.activity.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".component.activity.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.paintings.ImageViewPagerActivity"
+            android:label="@string/show_image" >
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.user.MyFocusActivity"
+            android:label="@string/my_focus_title"
+            android:parentActivityName="com.vgpt.androidpaintings.compoent.activity.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".component.activity.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.user.MyCollectActivity"
+            android:label="@string/my_collect_title"
+            android:parentActivityName="com.vgpt.androidpaintings.compoent.activity.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".component.activity.MainActivity" />
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.user.PersonInfoActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.FigurePaintingsActivity" >
+            <intent-filter>
+                <action android:name="com.vgpt.androidpaintings.compoent.activity.action.FIGURE_ACTION" />
+                <action android:name="figuretest" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationActivity" >
+
+            <!-- android:parentActivityName="com.vgpt.androidpaintings.compoent.activity.MainActivity" > -->
+            <!-- <meta-data -->
+            <!-- android:name="android.support.PARENT_ACTIVITY" -->
+            <!-- android:value=".component.activity.MainActivity" /> -->
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationMemberActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationNoticeActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.CreateAssociationActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.JionAssociationActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.SettingsAssociationActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.ShowMemberInfoActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationInfoActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationTestActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.JoinAssociationActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.LocalPhotoActivity" >
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.paintings.PaintingUploadActivity"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.paintings.PictureChangeSizeShowActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.search.SearchActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.search.SearchResultActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.paintings.MyUploadActivity" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.paintings.MyPaintingShowActivity" >
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.user.UserDataActivity"
+            android:label="@string/user_data_title"
+            android:parentActivityName="com.vgpt.androidpaintings.compoent.activity.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".component.activity.MainActivity" />
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.user.SettingsActivity" >
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.auction.AuctionPaintingFragmentActivity"
+            android:label="@string/auction_title" >
+
+            <!-- android:parentActivityName="com.vgpt.androidpaintings.compoent.activity.MainActivity" > -->
+            <!-- <meta-data -->
+            <!-- android:name="android.support.PARENT_ACTIVITY" -->
+            <!-- android:value=".component.activity.MainActivity" /> -->
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.paintings.CommentPageActivity" >
+            <intent-filter>
+                <action android:name="intent.CommentPage" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.paintings.CommentItemActivity" >
+            <intent-filter>
+                <action android:name="commentpage.to.commentitem" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationCreate" >
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationManeuverDetailActivity"
+            android:label="@string/title_activity_association_maneuver_detail" >
+        </activity>
+        <activity android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationManeuverCreateActivity" >
+        </activity>
+        <activity
+            android:name="com.vgpt.androidpaintings.compoent.activity.association.AssociationManeuverActivity"
+            android:label="@string/asso_exercise_title" >
+        </activity>
+
+        <!-- 测试用例 -->
+
+        <activity android:name="com.vgpt.androidpaintings.test.HttpJSONTest" >
+        </activity>
+    </application>
+
+</manifest>

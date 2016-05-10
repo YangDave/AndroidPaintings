@@ -1,0 +1,25 @@
+package com.vgpt.androidpaintings.biz;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.json.JSONObject;
+
+public class ChangeJSONObjectToMap {
+	
+	public static Map<String,Object> execute(JSONObject item){
+		Map<String,Object> map=new HashMap<String, Object>();
+		
+		Iterator<String> it=item.keys();
+		
+		while(it.hasNext()){
+			String key=(String)it.next();
+		}
+		
+		return null;
+		
+	}
+	
+
+}

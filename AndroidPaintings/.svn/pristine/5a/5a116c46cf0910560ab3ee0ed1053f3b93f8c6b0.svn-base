@@ -1,0 +1,302 @@
+package com.vgpt.androidpaintings.compoent.fragment;
+
+import java.io.InputStream;
+import java.lang.ref.SoftReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.webkit.URLUtil;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.BitmapExchangeDrawable;
+import com.vgpt.androidpaintings.biz.ImageFileCache;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.activity.association.Association;
+import com.vgpt.androidpaintings.compoent.activity.association.AssociationActivity;
+import com.vgpt.androidpaintings.compoent.activity.association.AssociationCreate;
+import com.vgpt.androidpaintings.compoent.activity.association.CreateAssociationActivity;
+import com.vgpt.androidpaintings.compoent.activity.association.JoinAssociationActivity;
+import com.vgpt.androidpaintings.compoent.activity.association.SettingsAssociationActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+
+/**
+ * @author Charles
+ *
+ */
+public class Fragment3 extends Fragment {
+	ListView associationlist;
+	Button extraButton;
+	
+	JSONArray assoArray;
+	AssociationListAdapter adapter;
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment3, container, false);
+		associationlist=(ListView)rootView.findViewById(R.id.associationlist);
+		extraButton=(Button)rootView.findViewById(R.id.extrabutton);
+		
+		adapter=new AssociationListAdapter(getActivity(),new ArrayList<Map<String,Object>>());
+		adapter.getlistItems().clear();
+		associationlist.setAdapter(adapter);
+		
+		
+		Map<String,Object> map=new HashMap<String, Object>();
+		map.put("user_id", MainActivity.user_id);
+		GetAssociationListTask assoTask=new GetAssociationListTask();
+		assoTask.execute(map);
+		
+		
+		extraButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View view) {
+				final AlertDialog.Builder builder=new Builder(getActivity());
+				builder.setItems(getResources().getStringArray(R.array.AssociationExtraArray),
+						new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int position) {
+								switch(position){
+//								加入协会
+								case 0:
+									Intent joinAssociationIntent=new Intent(getActivity(),JoinAssociationActivity.class);
+									startActivity(joinAssociationIntent);
+									break;
+//									创建协会
+								case 1:
+									Intent createAssociationIntent=new Intent(getActivity(),AssociationCreate.class);
+									createAssociationIntent.putExtra("user_id", MainActivity.user_id);
+									startActivity(createAssociationIntent);
+									break;
+//									协会设置
+								case 2:
+									Intent settingsAssociationIntent=new Intent(getActivity(),SettingsAssociationActivity.class);
+									startActivity(settingsAssociationIntent);
+									break;
+									
+								default:
+									builder.show().dismiss();
+ 								}
+							}
+						});
+				builder.show();
+				
+				
+			}
+		});
+		
+//		协会列表项点击跳转
+		associationlist.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> assoadapter, View view, int position,
+					long arg3) {
+				
+				Association association=new Association((String)((Map<String,Object>)adapter.getItem(position)).get("asso_name"),
+						(String)((Map<String,Object>)adapter.getItem(position)).get("asso_mark"),
+						(Integer)((Map<String,Object>)adapter.getItem(position)).get("asso_id"));
+				Intent intent=new Intent(getActivity(),AssociationActivity.class);
+				Bundle associationdata=new Bundle();
+				associationdata.putSerializable("association", association);
+				intent.putExtras(associationdata);
+				startActivity(intent);
+
+			}
+		});
+		return rootView;
+		
+		
+	}
+	class GetAssociationListTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		
+		private int checkCode;
+		
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			if(checkCode==1){
+				for(int i=0;i<assoArray.length();i++){
+					Map<String,Object> itemmap=new HashMap<String, Object>();
+					JSONObject itemObject=assoArray.optJSONObject(i);
+					itemmap.put("asso_name", itemObject.optString("asso_name"));
+					itemmap.put("asso_id", itemObject.optInt("asso_id"));
+					itemmap.put("asso_mark", itemObject.optString("asso_mark"));
+					adapter.getlistItems().add(itemmap);
+					
+				}
+				adapter.notifyDataSetChanged();
+			}
+		}
+
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Association.GET_ASSOCIATIONLIST, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									checkCode=json.optInt("code");
+									assoArray=json.optJSONArray("result");
+
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+
+				
+			}
+
+			return json;
+		}
+		
+	}
+	class AssociationListAdapter extends BaseAdapter{
+
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+		}
+
+		private Context mContext;
+		private List<Map<String, Object>> listItems;
+
+		public List<Map<String, Object>> getlistItems() {
+			return listItems;
+		}
+
+		public void setlistItems(List<Map<String, Object>> listItems) {
+			this.listItems = listItems;
+		}
+
+		@SuppressWarnings("unchecked")
+		public AssociationListAdapter(Context mContext,
+				List<Map<String, Object>> listItems) {
+			this.listItems = listItems;
+			this.mContext = mContext;
+		}
+
+		public void setmContext(Context mContext) {
+			this.mContext = mContext;
+		}
+
+		@Override
+		public int getCount() {
+
+			return listItems.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return listItems.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			ItemViewHolder itemViewHolder = null;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(mContext).inflate(
+						R.layout.simple_item, null);
+				itemViewHolder = new ItemViewHolder();
+				convertView.setTag(itemViewHolder);
+
+			} else {
+				itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+			}
+
+			itemViewHolder.mark = (ImageView) convertView
+					.findViewById(R.id.painting);
+			itemViewHolder.nameText = (TextView) convertView
+					.findViewById(R.id.name);
+			itemViewHolder.introductionText = (TextView) convertView
+					.findViewById(R.id.introduction);
+			@SuppressWarnings("unchecked")
+			Map<String, Object> associationItem = (Map<String, Object>) getItem(position);
+			int asso_id=(Integer)associationItem.get("asso_id");
+			itemViewHolder.nameText
+					.setText(associationItem.get("asso_name").toString());
+			itemViewHolder.introductionText.setText("简介");
+			
+			Picasso.with(getActivity()).load(Constant.Association.GET_MARK+asso_id).into(itemViewHolder.mark);
+			
+
+			return convertView;
+		}
+
+		class ItemViewHolder {
+
+			ImageView mark;
+			TextView nameText, introductionText;
+		}
+
+	}
+
+}

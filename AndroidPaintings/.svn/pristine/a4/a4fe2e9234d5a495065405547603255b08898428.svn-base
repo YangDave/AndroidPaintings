@@ -1,0 +1,68 @@
+package com.vgpt.androidpaintings.compoent.adapter;
+
+import java.util.List;
+import java.util.Map;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.compoent.adapter.CommentListAdapter.ItemViewHolder;
+import com.vgpt.androidpaintings.constants.Constant;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class AuctionListAdapter extends AbsListAdapter{
+
+	public AuctionListAdapter(Context mContext,
+			List<Map<String, Object>> listItems) {
+		super(mContext, listItems);
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		
+		
+		ItemViewHolder itemViewHolder = null;
+		if (convertView == null) {
+			convertView = LayoutInflater.from(mContext).inflate(
+					R.layout.auction_list_item, null);
+			itemViewHolder = new ItemViewHolder();
+			convertView.setTag(itemViewHolder);
+
+		} else {
+			itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+		}
+
+	
+		itemViewHolder.nameText = (TextView) convertView
+				.findViewById(R.id.pic_name);
+		itemViewHolder.current_priceText=(TextView)convertView.findViewById(R.id.current_price);
+		itemViewHolder.picView=(ImageView)convertView.findViewById(R.id.auction_image);
+		itemViewHolder.remain_timeText=(TextView)convertView.findViewById(R.id.remain_time);
+		itemViewHolder.introduction=(TextView)convertView.findViewById(R.id.introduction);
+		@SuppressWarnings("unchecked")
+		final Map<String, Object> auctionItem = (Map<String, Object>) getItem(position);
+		int user_id=(Integer)auctionItem.get("user_id");
+		itemViewHolder.nameText.setText(auctionItem.get("pic_name").toString());
+		itemViewHolder.current_priceText.setText(auctionItem.get("current_price").toString());
+		itemViewHolder.remain_timeText.setText(auctionItem.get("remain_time").toString());
+		itemViewHolder.introduction.setText(auctionItem.get("introduction").toString());
+		int pic_id=(Integer) auctionItem.get("pic_id");
+		Picasso.with(mContext).load(Constant.Painting.GET_PICTURE+pic_id).into(itemViewHolder.picView);
+		return convertView;
+	}
+	
+	class ItemViewHolder{
+		
+		TextView nameText,current_priceText,remain_timeText,introduction;
+		ImageView picView;
+		
+	}
+
+}

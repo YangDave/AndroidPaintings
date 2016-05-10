@@ -1,0 +1,67 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp" >
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#e0000000"
+                android:scaleType="fitXY"
+                android:src="@drawable/pic1" />
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerInParent="true"
+                android:clickable="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_launcher" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/collectButton"
+            style="@style/fragment4Bt"
+            android:text="@string/my_collect" />
+
+        <Button
+            android:id="@+id/myfoucusButton"
+            style="@style/fragment4Bt"
+            android:text="@string/my_focus" />
+
+        <Button
+            android:id="@+id/myupload"
+            style="@style/fragment4Bt"
+            android:text="@string/myupload" />
+
+        <Button
+            android:id="@+id/infoButton"
+            style="@style/fragment4Bt"
+            android:text="@string/user_info" />
+        <Button 
+            android:id="@+id/commentButton"
+            style="@style/fragment4Bt"
+            android:text="@string/my_comment"/>
+
+        <Button
+            android:id="@+id/settingsButton"
+            style="@style/fragment4Bt"
+            android:text="@string/action_settings" />
+
+        <Button
+            android:id="@+id/aboutButton"
+            style="@style/fragment4Bt"
+            android:text="@string/about" />
+    </LinearLayout>
+
+</ScrollView>

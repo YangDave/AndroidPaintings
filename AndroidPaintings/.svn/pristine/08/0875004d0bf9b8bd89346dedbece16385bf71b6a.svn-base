@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="15dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:orientation="vertical" >
+    
+    <TextView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:gravity="center_horizontal"
+        android:text="@string/create_asso_page"/>
+    
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="right"
+        >
+        <Button 
+            android:id="@+id/ok"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/ok"/>
+        <Button 
+            android:id="@+id/cancel"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/cancel"/>
+    </LinearLayout>
+    
+    <TableLayout 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stretchColumns="1"
+        android:shrinkColumns="0">
+        <TableRow android:paddingTop="5dp">
+            <TextView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/asso_name"
+                android:textSize="18sp"
+                />
+            <EditText 
+                android:id="@+id/asso_name_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:lines="1"
+                />
+        </TableRow>
+        
+            <TextView 
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/asso_introduction"
+                android:paddingTop="5dp"
+                android:textSize="18sp"/>
+        
+            <EditText
+                android:id="@+id/introduction"
+                android:textSize="15sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lines="5"
+                />
+        
+        
+    </TableLayout>
+    
+
+</LinearLayout>

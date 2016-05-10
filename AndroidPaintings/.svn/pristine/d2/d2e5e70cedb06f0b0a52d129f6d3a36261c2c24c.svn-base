@@ -1,0 +1,446 @@
+package com.vgpt.androidpaintings.compoent.activity.association;
+
+import java.io.InputStream;
+import java.lang.ref.SoftReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.webkit.URLUtil;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.compoent.adapter.AssoListAdapter;
+import com.vgpt.androidpaintings.compoent.activity.asynctask.PaintingShowTask;
+
+public class JoinAssociationActivity extends Activity{
+	Button assoButton;
+	Button appliedassoButton;
+	ListView assoList;
+	int user_id=MainActivity.user_id;
+	int page=1;
+	final int SIZE=3;
+	AssoListAdapter adapter;
+	JSONArray assoArray;
+	Boolean isWorking=false;
+	AssoListAdapter appliedAdapter;
+
+	@SuppressWarnings("unchecked")
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_association_join);
+		ExitApplication.getInstance().addActivity(this);
+		assoButton=(Button)findViewById(R.id.join_asso);
+		appliedassoButton=(Button)findViewById(R.id.joined_asso);
+		assoList=(ListView)findViewById(R.id.asso_list);
+		
+		assoButton.setClickable(false);
+		adapter=new AssoListAdapter(getApplicationContext()
+				, new ArrayList<Map<String,Object>>());
+		assoList.setAdapter(adapter);
+		appliedAdapter=new AssoListAdapter(getApplicationContext(),new ArrayList<Map<String,Object>>());
+		appliedassoButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				appliedassoButton.setClickable(false);
+				assoButton.setClickable(true);
+				assoList.setAdapter(appliedAdapter);
+				Map<String,Object> appliedMap=new HashMap<String,Object>();
+				appliedMap.put("user_id", user_id);
+				GetAppliedListTask appliedTask=new GetAppliedListTask();
+				appliedTask.execute(appliedMap);
+				
+			}
+		});
+		assoButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				assoButton.setClickable(false);
+				appliedassoButton.setClickable(true);
+				assoList.setAdapter(adapter);
+			}
+		});
+		Map<String,Object> map=new HashMap<String, Object>();
+		map.put("user_id", user_id);
+		map.put("page", page);
+		map.put("size", SIZE);
+		isWorking=true;
+		GetAssociationListTask task=new GetAssociationListTask();
+		task.execute(map);
+		
+		assoList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> assoadapter, View view, int position,
+					long arg3) {
+				Map<String,Object> item=(Map<String, Object>) assoList.getAdapter().getItem(position);
+				Intent assoInfoIntent=new Intent(JoinAssociationActivity.this,
+						AssociationInfoActivity.class);
+				assoInfoIntent.putExtra("asso_id",(Integer)item.get("asso_id"));
+				assoInfoIntent.putExtra("ismember", false);
+				startActivity(assoInfoIntent);
+			}
+		});
+		assoList.setOnScrollListener(new OnScrollListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE
+						&& !isWorking) {
+					isWorking = true;
+					
+						Map<String, Object> assoRequest = new HashMap<String, Object>();
+						assoRequest.put("user_id", user_id);
+						assoRequest.put("size", SIZE);
+						assoRequest.put("page", ++page);
+						GetAssociationListTask load=new GetAssociationListTask();
+						load.execute(assoRequest);
+					}
+					isWorking = false;
+				}
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+		
+	}
+	class GetAssociationListTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+
+		private int checkCode;
+		private JSONArray appliedArray;
+	
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			if(checkCode==1){
+				for(int i=0;i<assoArray.length();i++){
+					Map<String,Object> itemmap=new HashMap<String, Object>();
+					JSONObject itemObject=assoArray.optJSONObject(i);
+					itemmap.put("asso_name", itemObject.optString("asso_name"));
+					itemmap.put("asso_id", itemObject.optInt("asso_id"));
+					itemmap.put("asso_mark", itemObject.optString("asso_mark"));
+					itemmap.put("asso_introduction", itemObject.optString("asso_introduction"));
+					adapter.getlistItems().add(itemmap);
+					
+				}
+				adapter.notifyDataSetChanged();
+			}
+			isWorking=false;
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			// TODO Auto-generated method stub
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Association.GET_ALL_ASSOLIST, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									checkCode=json.optInt("code");
+									JSONObject ret=json.optJSONObject("result");
+									appliedArray=ret.optJSONArray("items");
+
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+
+				
+			}
+
+			return json;
+		}
+		
+	}
+	class GetAppliedListTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		private int checkCode;
+		private JSONArray appliedArray;
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			if((checkCode==1)&&(appliedArray!=null)){
+				for(int i=0;i<appliedArray.length();i++){
+					JSONObject appliedJson=appliedArray.optJSONObject(i);
+					Map<String,Object> item=new HashMap<String,Object>();
+					item.put("asso_id", appliedJson.optInt("asso_id"));
+					item.put("asso_name", appliedJson.optString("asso_name"));
+					item.put("asso_id", appliedJson.optInt("asso_id"));
+					item.put("asso_mark", appliedJson.optString("asso_mark"));
+					item.put("asso_introduction", appliedJson.optString("asso_introduction"));
+					appliedAdapter.getlistItems().add(item);
+				}
+				appliedAdapter.notifyDataSetChanged();
+			}
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			// TODO Auto-generated method stub
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Association.GET_ALL_ASSOLIST, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									checkCode=json.optInt("code");
+									JSONObject ret=json.optJSONObject("result");
+									appliedArray=ret.optJSONArray("items");
+
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+
+				
+			}
+
+			return json;
+		}
+		
+	}
+//	class AssociationListAdapter extends BaseAdapter{
+//
+//		@Override
+//		public void notifyDataSetChanged() {
+//			// TODO Auto-generated method stub
+//			super.notifyDataSetChanged();
+//		}
+//
+//		private Context mContext;
+//		private List<Map<String, Object>> listItems;
+//
+//		public List<Map<String, Object>> getlistItems() {
+//			return listItems;
+//		}
+//
+//		public void setlistItems(List<Map<String, Object>> listItems) {
+//			this.listItems = listItems;
+//		}
+//
+//		@SuppressWarnings("unchecked")
+//		public AssociationListAdapter(Context mContext,
+//				List<Map<String, Object>> listItems) {
+//			this.listItems = listItems;
+//			this.mContext = mContext;
+//		}
+//
+//		public void setmContext(Context mContext) {
+//			this.mContext = mContext;
+//		}
+//
+//		@Override
+//		public int getCount() {
+//
+//			return listItems.size();
+//		}
+//
+//		@Override
+//		public Map<String,Object> getItem(int position) {
+//			return listItems.get(position);
+//		}
+//
+//		@Override
+//		public long getItemId(int position) {
+//			// TODO Auto-generated method stub
+//			return position;
+//		}
+//
+//		@Override
+//		public View getView(int position, View convertView, ViewGroup parent) {
+//			ItemViewHolder itemViewHolder = null;
+//			if (convertView == null) {
+//				convertView = LayoutInflater.from(mContext).inflate(
+//						R.layout.simple_item, null);
+//				itemViewHolder = new ItemViewHolder();
+//				convertView.setTag(itemViewHolder);
+//
+//			} else {
+//				itemViewHolder = (ItemViewHolder) convertView.getTag();
+//
+//			}
+//
+//			itemViewHolder.mark = (ImageView) convertView
+//					.findViewById(R.id.painting);
+//			itemViewHolder.nameText = (TextView) convertView
+//					.findViewById(R.id.name);
+//			itemViewHolder.introductionText = (TextView) convertView
+//					.findViewById(R.id.introduction);
+//			@SuppressWarnings("unchecked")
+//			Map<String, Object> associationItem = (Map<String, Object>) getItem(position);
+//			itemViewHolder.mark.setTag(associationItem.get("asso_mark")
+//					.toString());
+//			itemViewHolder.nameText
+//					.setText(associationItem.get("asso_name").toString());
+//			itemViewHolder.introductionText.setText(associationItem.get("asso_introduction")
+//					.toString()); 
+//			new PaintingShowTask().execute(itemViewHolder.mark);
+//
+//			return convertView;
+//		}
+//
+//		class ItemViewHolder {
+//
+//			ImageView mark;
+//			TextView nameText, introductionText;
+//		}
+//
+//	}
+
+//	class PaintingShowTask extends AsyncTask<View, Integer, Drawable> {
+//
+//		private View mView;
+//		private HashMap<String, SoftReference<Drawable>> imageCache;
+//		Drawable drawable;
+//
+//		public PaintingShowTask() {
+//			imageCache = new HashMap<String, SoftReference<Drawable>>();
+//		}
+//
+//		@Override
+//		protected Drawable doInBackground(View... params) {
+//
+//			// TODO Auto-generated method stub
+//			drawable = null;
+//			View view = params[0];
+//			if (view.getTag() != null) {
+//				if (imageCache.containsKey(view.getTag())) {
+//					SoftReference<Drawable> cache = imageCache.get(view
+//							.getTag().toString());
+//					drawable = cache.get();
+//					if (drawable != null) {
+//						return drawable;
+//					}
+//				}
+//				try {
+//					if (URLUtil.isHttpUrl(view.getTag().toString())) {
+//						URL url = new URL(view.getTag().toString());
+//						HttpURLConnection conn = (HttpURLConnection) url
+//								.openConnection();
+//						conn.setDoInput(true);
+//						conn.connect();
+//						InputStream stream = conn.getInputStream();
+//						drawable = Drawable.createFromStream(stream, "src");
+//						stream.close();
+//					}
+//
+//				} catch (Exception e) {
+//					Log.v("painting", e.getMessage());
+//					return null;
+//				}
+//			}
+//			this.mView = view;
+//			return drawable;
+//		}
+//
+//		@Override
+//		protected void onCancelled() {
+//			// TODO Auto-generated method stub
+//			super.onCancelled();
+//		}
+//
+//		@Override
+//		protected void onCancelled(Drawable result) {
+//			// TODO Auto-generated method stub
+//			super.onCancelled(result);
+//		}
+//
+//		@SuppressLint("NewApi")
+//		@Override
+//		protected void onPostExecute(Drawable result) {
+//			// TODO Auto-generated method stub
+//			super.onPostExecute(result);
+//			if (drawable != null) {
+//				((ImageView)this.mView).setImageDrawable(result);
+////				Bitmap bitmap=BitmapExchangeDrawable.drawableToBitmap(drawable);
+////				ImageFileCache imageFileCache=new ImageFileCache();
+////				imageFileCache.savedBitmap(bitmap, mView.getTag().toString());
+//
+//			}
+//		}
+//
+//		@Override
+//		protected void onPreExecute() {
+//			// TODO Auto-generated method stub
+//			super.onPreExecute();
+//		}
+//
+//		@Override
+//		protected void onProgressUpdate(Integer... values) {
+//			// TODO Auto-generated method stub
+//			super.onProgressUpdate(values);
+//		}
+//
+//	}
+
+}

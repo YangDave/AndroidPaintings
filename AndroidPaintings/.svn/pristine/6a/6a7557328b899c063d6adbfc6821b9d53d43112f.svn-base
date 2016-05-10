@@ -1,0 +1,64 @@
+package com.vgpt.androidpaintings.compoent.adapter;
+
+import java.util.List;
+import java.util.Map;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.compoent.activity.asynctask.PaintingShowTask;
+import com.vgpt.androidpaintings.constants.Constant;
+
+
+
+public class AssoListAdapter extends AbsListAdapter{
+
+	public AssoListAdapter(Context mContext, List<Map<String, Object>> listItems) {
+		super(mContext, listItems);
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		ItemViewHolder itemViewHolder = null;
+		if (convertView == null) {
+			convertView = LayoutInflater.from(mContext).inflate(
+					R.layout.simple_item, null);
+			itemViewHolder = new ItemViewHolder();
+			convertView.setTag(itemViewHolder);
+
+		} else {
+			itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+		}
+
+		itemViewHolder.painting = (ImageView) convertView
+				.findViewById(R.id.painting);
+		itemViewHolder.nameText = (TextView) convertView
+				.findViewById(R.id.name);
+		itemViewHolder.introductionText = (TextView) convertView
+				.findViewById(R.id.introduction);
+		@SuppressWarnings("unchecked")
+		Map<String, Object> associationItem = (Map<String, Object>) getItem(position);
+		int asso_id=(Integer)associationItem.get("asso_id");
+		itemViewHolder.nameText
+				.setText(associationItem.get("asso_name").toString());
+		itemViewHolder.introductionText.setText(associationItem.get("asso_introduction")
+				.toString()); 
+		Picasso.with(mContext).load(Constant.Association.GET_MARK+asso_id).into(itemViewHolder.painting);
+
+		return convertView;
+	}
+	
+	class ItemViewHolder{
+		ImageView painting;
+		TextView nameText,introductionText;
+	}
+
+}

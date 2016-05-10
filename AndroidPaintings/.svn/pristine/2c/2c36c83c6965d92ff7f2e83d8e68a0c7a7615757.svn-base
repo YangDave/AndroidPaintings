@@ -1,0 +1,159 @@
+package com.vgpt.androidpaintings.compoent.activity.association;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.compoent.activity.user.SignInActivity;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+
+public class AssociationCreate extends Activity{
+	
+	EditText asso_nameText;
+	EditText asso_introductionText;
+	Button okButton;
+	Button cancelButton;
+	String asso_name;
+	String asso_introduction;
+	int user_id;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_association_create);
+		
+		asso_nameText=(EditText)findViewById(R.id.asso_name_edit);
+		asso_introductionText=(EditText)findViewById(R.id.introduction);
+		
+		okButton=(Button)findViewById(R.id.ok);
+		cancelButton=(Button)findViewById(R.id.cancel);
+		
+		Intent intent=getIntent();
+		user_id=intent.getIntExtra("user_id", 0);
+		cancelButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				AssociationCreate.this.finish();
+				
+			}
+		});
+		
+		okButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				asso_name=asso_nameText.getText().toString();
+				asso_introduction=asso_introductionText.getText().toString();
+				if(user_id!=0){
+					if((StringUtils.isNotBlank(asso_name))&&(StringUtils.isNotBlank(asso_introduction))){
+					Map<String,Object> map=new HashMap<String, Object>();
+					map.put("asso_name", asso_name);
+					map.put("introduction",asso_introduction);
+					map.put("user_id", user_id);
+					CreateAssoTask task=new CreateAssoTask();
+					task.execute(map);
+				}
+				}
+				else{
+					Intent signInIntent=new Intent(AssociationCreate.this,SignInActivity.class);
+					startActivity(signInIntent);
+					AssociationCreate.this.finish();
+				}
+			}
+		});
+		
+	}
+	
+	class CreateAssoTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		
+		private int checkCode;
+		private JSONObject ret;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Association.REGISTER_ASSO, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									checkCode=json.optInt("code");
+									ret=json.optJSONObject("result");
+
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+
+				
+			}
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			if((checkCode==1)&& (ret!=null)){
+				Boolean isSuccess=ret.optBoolean("success");
+				if(isSuccess){
+					int asso_id=ret.optInt("asso_id");
+					Toast.makeText(AssociationCreate.this, "����Э��ɹ�", Toast.LENGTH_LONG).show();
+					Intent showCreatedAssoIntent=new Intent(AssociationCreate.this,AssociationActivity.class);
+					Bundle asso_data=new Bundle();
+					Association asso=new Association(asso_name, null, asso_id);
+					asso_data.putSerializable("association", asso);
+					showCreatedAssoIntent.putExtras(asso_data);
+					startActivity(showCreatedAssoIntent);
+					AssociationCreate.this.finish();
+				}
+				else{
+					Toast.makeText(AssociationCreate.this,"����Э��ʧ��", Toast.LENGTH_LONG).show();
+				}
+			}
+			else{
+				Toast.makeText(AssociationCreate.this,"����Э��ʧ��", Toast.LENGTH_LONG).show();
+			}
+		}
+		
+	}
+	
+
+}

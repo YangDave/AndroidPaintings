@@ -1,0 +1,226 @@
+package com.vgpt.androidpaintings.compoent.fragment;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.auction.AuctionActivity;
+import com.vgpt.androidpaintings.compoent.activity.MainActivity;
+import com.vgpt.androidpaintings.compoent.adapter.AuctionListAdapter;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.entity.AuctionItem;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+
+/**
+ * @author Charles
+ * TODO 期刊
+ *
+ */
+public class Fragment2 extends Fragment {
+	OnBackListener mListener;
+	int user_id=MainActivity.user_id;
+	String username=MainActivity.username;
+	GridView gridView;
+	TextView loadMore;
+	AuctionListAdapter adapter;
+	Spinner spinner;
+	int[] page={1,1,1,1,1,1};
+	final static int SIZE=3;
+	boolean isWorking=false;
+
+	public interface OnBackListener {
+		public void backEvent();
+	}
+	
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (OnBackListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+        }
+    }
+
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		View parentView = inflater.inflate(R.layout.fragment2, container, false);
+		
+		gridView=(GridView)parentView.findViewById(R.id.gridView);
+		loadMore=(TextView)parentView.findViewById(R.id.loadmore);
+		spinner=(Spinner)parentView.findViewById(R.id.spinner);
+		
+		adapter=new AuctionListAdapter(getActivity(), new ArrayList<Map<String,Object>>());
+		gridView.setAdapter(adapter);
+		
+		ArrayAdapter<String> aa=new ArrayAdapter<String>(getActivity(), 
+				android.R.layout.simple_spinner_item, getResources().getStringArray(
+						R.array.PaintingCategory));
+		spinner.setAdapter(aa);
+		
+		Map<String,Object> map=new HashMap<String, Object>();
+		map.put("user_id",user_id);
+		map.put("page", ++page[0]);
+		map.put("size", SIZE);
+		map.put("category", "all");
+		GetAuctionListTask task=new GetAuctionListTask();
+		task.execute(map);
+		
+		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int position, long arg3) {
+				
+				String category=position==0?"all":position==1?"figure":position==2?"mountain":position==3?"bird":position==4?"虫鱼":"其他";
+				Map<String,Object> itemmap=new HashMap<String, Object>();
+				itemmap.put("user_id", user_id);
+				itemmap.put("page", ++page[position]);
+				itemmap.put("size",SIZE);
+				itemmap.put("category",category);
+				
+				GetAuctionListTask task=new GetAuctionListTask();
+				task.execute(itemmap);
+				
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		
+		gridView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View view, int position,
+					long arg3) {
+				
+				Map<String,Object> map=adapter.getItem(position);
+				AuctionItem ai=new AuctionItem(map);
+				Intent intent=new Intent(getActivity(),AuctionActivity.class);
+				Bundle data=new Bundle();
+				data.putSerializable("auctionItem", ai);
+				intent.putExtras(data);
+				intent.putExtra("user_id", user_id);
+				startActivity(intent);
+				view.setBackgroundColor(Color.GREEN);
+				
+			}
+		});
+		
+		return parentView;
+	}
+	
+	class GetAuctionListTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		
+		private int checkCode;
+		private JSONArray items;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			isWorking = true;
+
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Auction.GET_AUCTION_LIST, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null ) {
+									checkCode=json.optInt("code");
+									if(checkCode== 1){
+									JSONObject ret = json
+											.optJSONObject("result");
+									items = ret.optJSONArray("items");
+									JSONObject request = json
+											.optJSONObject("request");
+									checkCode = json.optInt("code");
+									}
+									
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			
+			if(checkCode==1){
+				if(items!=null){
+					for(int i=0;i<items.length();i++){
+						JSONObject item=items.optJSONObject(i);
+						Map<String,Object> map=new HashMap<String, Object>();
+						map.put("pic_id", item.optInt("pic_id"));
+						map.put("pic_name", item.optString("pic_name"));
+						map.put("current_price", item.optInt("current_price"));
+						map.put("introduction", item.optString("introduction"));
+						map.put("remain_time", item.optInt("remain_time"));
+						map.put("auction_id", item.optInt("auction_id"));
+						adapter.getlistItems().add(map);
+					}
+					
+					adapter.notifyDataSetChanged();
+				}
+			}
+			else{
+//				TODO
+			}
+		}
+		
+		
+	}
+}

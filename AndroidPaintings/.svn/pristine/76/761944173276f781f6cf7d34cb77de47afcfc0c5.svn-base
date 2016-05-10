@@ -1,0 +1,54 @@
+package com.vgpt.androidpaintings.compoent.adapter;
+
+import java.util.List;
+import java.util.Map;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.compoent.adapter.AbsListAdapter.ItemViewHolder;
+import com.vgpt.androidpaintings.constants.Constant;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class FocusListAdapter extends AbsListAdapter{
+
+	public FocusListAdapter(Context mContext,
+			List<Map<String, Object>> listItems) {
+		super(mContext, listItems);
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		ItemViewHolder itemViewHolder=null;
+		if (convertView == null) {
+			convertView = LayoutInflater.from(mContext).inflate(
+					R.layout.collect_listitem, null);
+			itemViewHolder = new ItemViewHolder();
+			convertView.setTag(itemViewHolder);
+
+		} else {
+			itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+		}
+
+		itemViewHolder.painting = (ImageView) convertView
+				.findViewById(R.id.painting);
+		itemViewHolder.nameText = (TextView) convertView
+				.findViewById(R.id.name);
+		
+		@SuppressWarnings("unchecked")
+		Map<String, Object> picItem = (Map<String, Object>) getItem(position);
+		int person_id=(Integer)picItem.get("person_id");
+		itemViewHolder.nameText
+				.setText(picItem.get("focusedname").toString());
+		
+		Picasso.with(mContext).load(Constant.Api.GET_PHOTO+person_id).into(itemViewHolder.painting);
+
+		return convertView;
+	}
+}

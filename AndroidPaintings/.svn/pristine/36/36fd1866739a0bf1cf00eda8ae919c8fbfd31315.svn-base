@@ -1,0 +1,182 @@
+package com.vgpt.androidpaintings.compoent.activity.association;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.application.ExitApplication;
+import com.vgpt.androidpaintings.compoent.activity.association.AssociationMemberActivity.MemberAdapter.ItemViewHolder;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.entity.Association;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+
+public class AssociationNoticeActivity extends Activity{
+	Association association=null;
+	TextView asso_nameText;
+	int asso_id;
+	ListView noticeList;
+	NoticeAdapter adapter;
+	JSONArray noticeArray;
+	
+	@SuppressWarnings("unchecked")
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_association_notice);
+		ExitApplication.getInstance().addActivity(this);
+		Intent intent=getIntent();
+		association=(Association)intent.getSerializableExtra("association");
+		asso_id=association.getAsso_id();
+		asso_nameText=(TextView)findViewById(R.id.asso_nameofnoticepage);
+		asso_nameText.setText(association.getAsso_name());
+		noticeList=(ListView)findViewById(R.id.noticelist);
+		adapter=new NoticeAdapter(new ArrayList<Map<String,Object>>());
+		noticeList.setAdapter(adapter);
+		
+		Map<String,Object> map=new HashMap<String,Object>();
+		map.put("asso_id", asso_id);
+		GetNoticeTask task=new GetNoticeTask();
+		task.execute(map);
+		
+	}
+	class NoticeAdapter extends BaseAdapter{
+		
+		
+		public List<Map<String,Object>> mListItems;
+		
+		public NoticeAdapter(List<Map<String,Object>> mListItems){
+			this.mListItems=mListItems;
+			
+		}
+		public List<Map<String,Object>> getListItems(){
+			return mListItems;
+		};
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return mListItems.size();
+		}
+
+		@Override
+		public Map<String,Object> getItem(int position) {
+			// TODO Auto-generated method stub
+			return mListItems.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			ItemViewHolder itemViewHolder = null;
+			if (convertView == null) {
+				convertView = LayoutInflater.from(AssociationNoticeActivity.this).inflate(
+						R.layout.notice_item, null);
+				itemViewHolder = new ItemViewHolder();
+				convertView.setTag(itemViewHolder);
+
+			} else {
+				itemViewHolder = (ItemViewHolder) convertView.getTag();
+
+			}
+			itemViewHolder.titleText = (TextView) convertView
+					.findViewById(R.id.notice_title);
+			itemViewHolder.messageText=(TextView)convertView.findViewById(R.id.notice_message);
+			itemViewHolder.dateText=(TextView)convertView.findViewById(R.id.notice_date);
+			@SuppressWarnings("unchecked")
+			Map<String, Object> noticeItem = getItem(position);
+			itemViewHolder.titleText.setText(noticeItem.get("notice_title").toString());
+			itemViewHolder.messageText.setText(noticeItem.get("message").toString());
+			itemViewHolder.dateText.setText(noticeItem.get("date").toString());
+			
+			return convertView;
+		}
+		class ItemViewHolder {
+			TextView titleText, messageText,dateText;
+		}
+		
+	}
+
+	class GetNoticeTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		private int checkCode;
+		
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			// TODO Auto-generated method stub
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Association.GET_ASSO_NOTICE, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									checkCode=json.optInt("code");
+									noticeArray=json.optJSONArray("result");
+
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+
+				
+			}
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			if(checkCode==1){
+				for(int i=0;i<noticeArray.length();i++){
+					Map<String,Object> listItem=new HashMap<String,Object>();
+					JSONObject noticeObject=noticeArray.optJSONObject(i);
+					listItem.put("notice_title", noticeObject.optString("message_title"));
+					listItem.put("message", noticeObject.optString("message"));
+					listItem.put("date", noticeObject.optString("date"));
+					adapter.getListItems().add(listItem);
+				}
+				adapter.notifyDataSetChanged();
+			}
+		}
+		
+	}
+}

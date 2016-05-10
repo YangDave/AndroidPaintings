@@ -1,0 +1,99 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp" >
+
+    <TextView
+        android:id="@+id/maneuver_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/maneuver_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15sp" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:shrinkColumns="0"
+        android:stretchColumns="1" >
+
+        <TableRow android:paddingTop="10dp" >
+
+            <TextView
+                style="@style/asso_info_column"
+                android:text="@string/maneuver_issuer" />
+
+            <TextView
+                android:id="@+id/maneuver_issuer"
+                style="@style/asso_info_content" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+            <TextView
+                style="@style/asso_info_column"
+                android:text="@string/maneuver_place" />
+
+            <TextView
+                android:id="@+id/maneuver_place"
+                style="@style/asso_info_content" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+            <TextView
+                style="@style/asso_info_column"
+                android:text="@string/maneuver_start_date" />
+
+            <TextView
+                android:id="@+id/maneuver_start_date"
+                style="@style/asso_info_content" />
+        </TableRow>
+
+        <TableRow android:paddingTop="10dp" >
+
+            <TextView
+                style="@style/asso_info_column"
+                android:text="@string/maneuver_over_date" />
+
+            <TextView
+                android:id="@+id/maneuver_over_date"
+                style="@style/asso_info_content" />
+        </TableRow>
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/maneuver_issue_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:textColor="@color/light_text" />
+
+    <Button
+        android:id="@+id/join_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="@string/to_join_maneuver" />
+    
+    <TextView 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="报名列表"/>
+
+
+    <ListView
+        android:id="@+id/maneuver_member_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:dividerHeight="1dp" />
+
+</LinearLayout>

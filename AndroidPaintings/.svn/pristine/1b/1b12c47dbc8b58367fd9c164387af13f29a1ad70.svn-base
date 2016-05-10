@@ -1,0 +1,145 @@
+package com.vgpt.androidpaintings.compoent.activity.association;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+
+public class AssociationInfoActivity extends Activity{
+	TextView asso_nameText;
+	TextView founderText;
+	TextView presidentText;
+	TextView creation_dateText;
+	TextView introductionText;
+	ImageView markView;
+	SharedPreferences pre;
+	SharedPreferences.Editor editor;
+	int asso_id;
+	Boolean isMember=false;
+	Button joinassoButton;
+	
+	
+	@SuppressWarnings("unchecked")
+	protected void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_association_info);
+		ExitApplication.getInstance().addActivity(this);
+		asso_nameText=(TextView)findViewById(R.id.asso_name);
+		founderText=(TextView)findViewById(R.id.asso_founder);
+		presidentText=(TextView)findViewById(R.id.asso_president);
+		creation_dateText=(TextView)findViewById(R.id.asso_creation_date);
+		introductionText=(TextView)findViewById(R.id.asso_introduction);
+		markView=(ImageView)findViewById(R.id.asso_mark);
+		joinassoButton=(Button)findViewById(R.id.joinasso);
+		Intent intent=getIntent();
+		asso_id=(Integer) intent.getSerializableExtra("asso_id");
+		isMember=(Boolean)intent.getSerializableExtra("ismember");
+		if(isMember){
+			joinassoButton.setVisibility(View.INVISIBLE);
+			
+		}
+		pre=getSharedPreferences(Integer.toString(asso_id), MODE_PRIVATE);
+		editor=pre.edit();
+	    
+//	    ImageFileCache markFileCache=new ImageFileCache();
+//	    Bitmap mark=markFileCache.getImage(url);
+//	    markView.setImageBitmap(mark);
+	    if(StringUtils.isNotBlank(pre.getString("founder", null))){
+	    	asso_nameText.setText(pre.getString("asso_name", null));
+		    String url=pre.getString("url", null);
+	    	founderText.setText(pre.getString("founder",null));
+	    	presidentText.setText(pre.getString("president", null));
+	    	creation_dateText.setText(pre.getString("creation_date",null));
+	    	introductionText.setText(pre.getString("introduction", null));
+	    }
+	    else{
+	    Map<String,Object> map=new HashMap<String, Object>();
+	    map.put("asso_id", asso_id);
+	    GetAssoInfoTask task=new GetAssoInfoTask();
+	    task.execute(map);}
+	    
+	}
+	class GetAssoInfoTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		private int checkCode;
+		private JSONObject ret;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			// TODO Auto-generated method stub
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			try {
+				
+				NameValuePair pa = new BasicNameValuePair("json",
+						json.toString());
+				list.add(pa);
+
+				cl.post(Constant.Association.GET_ASSO_INFO, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									checkCode=json.optInt("code");
+									ret=json.optJSONObject("result");
+
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+			}
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			if(checkCode==1){
+			
+			String founder=ret.optString("asso_founder");
+			String president=ret.optString("asso_president");
+			String creation_date=ret.optString("asso_creation_date");
+			String introduction=ret.optString("asso_introduction");
+			String asso_name=ret.optString("asso_name");
+			asso_nameText.setText(asso_name);
+			founderText.setText(founder);
+			presidentText.setText(president);
+			creation_dateText.setText(creation_date);
+			introductionText.setText(introduction);
+			editor.putString("founder", founder);
+			editor.putString("president", president);
+			editor.putString("creation_date", creation_date);
+			editor.putString("introduction", introduction);	}
+		}
+		
+	}
+
+}

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="action_search">搜索</string>
+    <string name="action_quit">退出</string>
+    <string name="app_name">华夏字画</string>
+    <string name="action_settings">设置</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="figure">人物画</string>
+    <string name="landscape">山水画</string>
+    <string name="birds">鸟兽画</string>
+    <string name="flower">花卉画</string>
+    <string name="insect">鱼鳞虫芥</string>
+    <string name="more">更多</string>
+    <string name="userOrPwdLengthErrorTitle">用户名或密码长度不对</string>
+    <string name="userOrPwdLengthError">请输入字符串长度为8到16位的用户名和密码，由字母、数字和下划线组成。</string>
+    <string name="userOrPwdNull">请输入用户名和密码</string>
+    <string name="userOrPwdNullTitle">用户名或密码为空</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="pwdlengthwarntitle">密码长度不对</string>
+    <string name="pwdlengthwarn">密码应为8至15位的由字母、数字和下划线组成的字符串，请重新输入</string>
+    <string name="userlengthwarntitle">用户名长度不对</string>
+    <string name="userlengthwarn">用户名应为8至15位的由字母、数字和下划线组成的字符串，请重新输入</string>
+    <string name="userorpwdlengthwarntitle">用户名或密码长度不对</string>
+    <string name="userorpwdlengthwarn">用户名或密码长度应为8至16位，由字母、数字和下划线组成，请重新输入</string>
+    <string name="chooseandcheck_photo">请选择以下图片作为你的头像</string>
+    
+    <string name="pwdequalusernametitle">用户名不能与密码相同</string>
+    <string name="pwdequalusername">用户名不能与密码一致，请重新输入用户名或密码</string>
+    
+    <string name="loading">正在加载中...</string>
+    <string name="signupwarntitle">警告</string>
+    <string name="signupwarn">用户名或密码长度不对，或邮箱格式不对，请输入8至16位用户名和密码，由字母、数字和下划线组成，并检查邮箱格式是否正确</string>
+    
+   <string name="emailwarntitle">邮箱格式警告</string>
+   <string name="emailwarn">邮箱格式不正确，请重新输入。</string>
+   
+   <string name="realnamesettingtitle">真实姓名设置</string>
+   <string name="realnamesetting">请输入你的真实姓名:</string>
+   
+   <string name="usernameuniquetitle">用户名已存在</string>
+   <string name="usernameunique">用户名已存在，请重新输入。</string>
+   
+   <string name="twicepwdnotequaltitle">两次输入密码不一致</string>
+   <string name="twicepwdnotequal">两次输入密码不一致，请重新输入</string>
+   
+   <string name="male">男</string>
+   <string name="female">女</string>
+   
+   <string name="connectfalsetitle">未知错误</string>
+   <string name="connectfalse">请检查网络连接</string>
+   
+   <string name="my_collect">我的收藏</string>
+   
+   <string name="setfocus">设为关注</string>
+   <string name="cancelfocus">取消关注</string>
+   <string name="my_focus">我的关注</string>
+   
+   
+   <string name="associationlist">协会列表</string>
+   <string name="joined_asso">已申请协会</string>
+   <string name="join_asso">协会申请</string>
+   
+   <string name="joinasso">加入协会</string>
+   
+   <string name="asso_info">协会信息</string>
+   <string name="asso_name">协会名称:</string>
+   <string name="create_asso_page">创建协会</string>
+   <string name="asso_category">协会类别</string>
+   <string name="choose_category">选择协会类别</string>
+   <string name="asso_introduction">协会类别</string>
+   
+   <string name="memberlist">的成员列表</string>
+   
+   <string name="notice">协会公告</string>
+   
+   <string name="action_upload">上传</string>
+   <string name="choosepic">选择图片</string>
+   <string name="uploader">上传用户:</string>
+   <string name="paintingname">作品名称:</string>
+   <string name="paintingsize">作品尺寸:</string>
+   <string name="height">画作长度(CM):</string>
+   <string name="width">画作宽度(CM):</string>
+   <string name="creation_date">创作日期</string>
+   <string name="paintingintroduction">书画简介</string>
+   <string name="quitUser">注销</string>
+   
+   <string name="search_pic">搜索书画</string>
+   <string name="search_user">搜索用户</string>
+   
+   <string name="loadmore_ing">正在加载更多</string>
+   
+   <string name="myupload">我的上传</string>
+   <string name="safecenter">安全中心</string>
+   
+   <string name="showcomment">查看评论</string>
+   <string name="mycomment">我发表的评论</string>
+   
+   <string name="announce_comment">发表评论</string>
+</resources>
+

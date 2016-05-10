@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="AssociationExtraArray">
+        <item>加入协会</item>
+        <item>创建协会</item>
+        <item>设置</item>
+        <item>取消</item>
+    </array>
+    <array name="headphotoItemsArray">
+        <item>使用本地图片</item>
+        <item>使用摄像头</item>
+        <item>查看图片</item>
+        <item>取消</item>
+    </array>
+    
+    <array name="PaintingItemsArray">
+        <item>使用本地图片</item>
+        <item>使用摄像头</item>
+        <item>取消</item>
+    </array>
+    
+    <array name="CategoryArray">
+        <item>人物</item>
+        <item>风景</item>
+        <item>鸟兽 </item>
+        <item>虫鱼</item>
+        <item>其他</item>
+        <item>取消</item>
+    </array>
+    
+    <array name="uploadSuccess">
+        <item>继续上传</item>
+        <item>返回主页</item>
+    </array>
+    
+</resources>

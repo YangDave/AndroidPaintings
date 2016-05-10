@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="hello">Hello World</string>
+     <string name="browse">浏览</string>
+    <string name="begin_trip">开始旅程</string>
+    <string name="pull_to_refresh_pull_label">下拉刷新</string>
+    <string name="pull_to_refresh_release_label">松开后刷新</string>
+    <string name="pull_to_refresh_refreshing_label">刷新...</string>
+    <string name="pull_to_refresh_tap_label">Tap to refresh...</string>
+    <string name="pull_to_refresh_footer_label">松开加载更多...</string>
+    <string name="pull_to_refresh_footer_pull_label">上拉更多</string>
+    <string name="pull_to_refresh_footer_refreshing_label">加载中...</string>
+    <string name="refresh_down_text">下拉刷新</string>
+    <string name="refresh_release_text">松开后刷新</string>
+    
+    <string name="latest_painting">最新原创作品</string>
+    <string name="latest_auction">最新拍卖作品</string>
+    
+    
+    <string name="time_rank">按时间排序</string>
+    
+    
+</resources>

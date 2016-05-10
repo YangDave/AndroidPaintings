@@ -1,0 +1,136 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+  <LinearLayout
+        android:id="@+id/btn_container"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#F5F5F5"
+         >
+        
+        <Button
+            android:id="@+id/all_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="12sp"
+            android:text="全部" />
+         <Button
+             android:id="@+id/figure_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_weight="1"
+            android:text="人物" />
+         
+          <Button
+              android:id="@+id/landscape_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:layout_weight="1"
+            android:text="风景" />
+           <Button
+               android:id="@+id/bird_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:layout_weight="1"
+            android:text="鸟兽" />
+            <Button
+                android:id="@+id/insect_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:layout_weight="1"
+            android:text="虫鱼" />
+             <Button
+                 android:id="@+id/more_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+             android:layout_weight="1"
+            android:text="其他" />
+
+<!--       <RadioGroup  -->
+<!--           android:id="@+id/buttonGroup" -->
+<!--           android:layout_width="match_parent" -->
+<!--           android:layout_height="wrap_content" -->
+<!--           android:orientation="horizontal"> -->
+<!--           <RadioButton  -->
+<!--               android:id="@+id/all" -->
+<!--               android:layout_height="wrap_content" -->
+<!--               android:layout_width="0dp" -->
+<!--               android:layout_weight="1" -->
+<!--               android:tag="all" -->
+<!--               android:text="全部"/> -->
+<!--           <RadioButton  -->
+<!--               android:id="@+id/figure" -->
+<!--               android:layout_height="wrap_content" -->
+<!--               android:layout_width="0dp" -->
+<!--               android:layout_weight="1" -->
+<!--               android:tag="figure" -->
+<!--               android:text="人物"/> -->
+<!--           <RadioButton  -->
+<!--               android:id="@+id/landscape" -->
+<!--               android:layout_height="wrap_content" -->
+<!--               android:layout_width="0dp" -->
+<!--               android:layout_weight="1" -->
+<!--               android:tag="landscape" -->
+<!--               android:text="风景"/> -->
+<!--            <RadioButton  -->
+<!--               android:id="@+id/bird" -->
+<!--               android:layout_height="wrap_content" -->
+<!--               android:layout_width="0dp" -->
+<!--               android:layout_weight="1" -->
+<!--               android:tag="bird" -->
+<!--               android:text="鸟兽"/> -->
+<!--           <RadioButton  -->
+<!--               android:id="@+id/insect" -->
+<!--               android:layout_height="wrap_content" -->
+<!--               android:layout_width="0dp" -->
+<!--               android:layout_weight="1" -->
+<!--               android:tag="insect" -->
+<!--               android:text="虫鱼"/> -->
+<!--            <RadioButton  -->
+<!--               android:id="@+id/other" -->
+<!--               android:layout_height="wrap_content" -->
+<!--               android:layout_width="0dp" -->
+<!--               android:layout_weight="1" -->
+<!--               android:tag="other" -->
+<!--               android:text="其他"/> -->
+         
+          
+<!--       </RadioGroup> -->
+           
+    </LinearLayout>  
+   
+    
+<GridView android:layout_width="match_parent"
+    android:layout_below="@id/btn_container"
+    android:layout_height="match_parent"
+    android:verticalSpacing="1dp"
+    android:horizontalSpacing="1dp"
+    android:numColumns="2"
+    android:gravity="center"
+    android:id="@+id/listview_container">
+    </GridView>
+<TextView 
+    android:id="@+id/loadmore"
+    android:layout_alignBottom="@id/listview_container"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:gravity="center"
+    android:text="@string/loadmore_ing"
+    android:background="#CFCFCF"
+    android:visibility="invisible"
+    android:textSize="25sp"/>
+
+
+
+</RelativeLayout>

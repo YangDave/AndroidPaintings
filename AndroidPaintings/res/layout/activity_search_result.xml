@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout 
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent"
+     android:orientation="vertical">
+    <LinearLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/linear"
+        android:orientation="horizontal">
+
+        <RadioGroup
+            android:id="@+id/rankGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/dateRank"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="时间排序"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:id="@+id/relateRank"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="相关度排序"
+                android:checked="true"
+                android:textSize="16sp" />
+        </RadioGroup>
+        
+    </LinearLayout>
+<ListView
+    android:layout_width="match_parent"
+    android:id="@+id/result_container"
+    android:layout_below="@id/linear"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="15dp"
+    android:divider="#f00"
+    android:layout_height="match_parent" >
+        
+</ListView>
+<TextView 
+    android:id="@+id/loadmore"
+    android:layout_alignBottom="@id/result_container"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:gravity="center"
+    android:text="@string/loadmore_ing"
+    android:background="#CFCFCF"
+    android:visibility="invisible"
+    android:textSize="25sp"/>
+</RelativeLayout>

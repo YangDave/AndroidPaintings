@@ -1,0 +1,653 @@
+package com.vgpt.androidpaintings.compoent.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+import com.vgpt.androidpaintings.R;
+import com.vgpt.androidpaintings.biz.ExitApplication;
+import com.vgpt.androidpaintings.biz.GetAssetsFile;
+import com.vgpt.androidpaintings.biz.GetUploadTimeToNow;
+import com.vgpt.androidpaintings.compoent.activity.PersonInfoActivity.SetFocusTask;
+import com.vgpt.androidpaintings.constants.Constant;
+import com.vgpt.androidpaintings.entity.PaintingItem;
+import com.vgpt.androidpaintings.http.JSONResponseHandler;
+import com.vgpt.androidpaintings.http.MyHttpClient;
+import com.vgpt.androidpaintings.utils.LogUtils;
+
+public class ShowImageActivity extends Activity {
+
+	ImageView imageView,photoView;
+	TextView nameText,uploaderText,categoryText,countText;
+	TextView authorText;
+	TextView sizeText;
+	TextView date_creationText;
+	TextView date_onText;
+	TextView identificationText;
+	TextView introductionText;
+	Button collectButton, preBt, nextBt,commentBt;
+	Button focusButton;
+
+	SharedPreferences signInRecord;
+	String username, category;
+	SharedPreferences userPre;
+	int user_id;
+	int pic_id;
+	Boolean isWorking = false;
+	Boolean collectOrNot = false;
+	Bitmap bm = null;
+	int position = -1;
+	int page = 0;
+	final static int SIZE = 3;
+	int uploader_id,recommendation,count_read,count_comment;
+	String date_on ,pic_name,uploader;
+	final static String comment="intent.CommentPage";
+	PaintingItem pi;
+	@SuppressLint("UseSparseArrays")
+	Map<Integer, JSONObject> jsonMap = new HashMap<Integer, JSONObject>();
+
+	ArrayList<Integer> pic_idList = new ArrayList<Integer>();
+
+
+	@SuppressWarnings("unchecked")
+	protected void onCreate(Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_show_image);
+		ExitApplication.getInstance().addActivity(this);
+
+		/*
+		 * find View
+		 */
+		{
+		imageView = (ImageView) findViewById(R.id.image);
+		photoView = (ImageView)  findViewById(R.id.headPhoto);
+		categoryText = (TextView) findViewById(R.id.category);
+		countText = (TextView) findViewById(R.id.count);
+		
+		nameText = (TextView) findViewById(R.id.name);
+		authorText = (TextView) findViewById(R.id.author);
+		sizeText = (TextView) findViewById(R.id.size);
+		date_creationText = (TextView) findViewById(R.id.date_creation);
+		date_onText = (TextView) findViewById(R.id.date_on);
+		identificationText = (TextView) findViewById(R.id.identification);
+		introductionText = (TextView) findViewById(R.id.introduction);
+		authorText.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
+		uploaderText = (TextView) findViewById(R.id.uploader);
+		preBt = (Button) findViewById(R.id.previous);
+		nextBt = (Button) findViewById(R.id.next);
+		commentBt=(Button)findViewById(R.id.getcomment);
+		focusButton = (Button) findViewById(R.id.focus);
+
+		}
+		
+
+		/*
+		 * get user_id
+		 */
+		signInRecord = getSharedPreferences("signInRecord", MODE_PRIVATE);
+		user_id = signInRecord.getInt("lastSignInUserId", 0);
+
+		/*
+		 * 获取传递过来的paintingItem
+		 */
+		Intent intent = getIntent();
+		pi =(PaintingItem)intent.getSerializableExtra("paintingItem");
+		
+//		TODO
+		int i = (Integer)intent.getIntExtra("code", 1);
+		LogUtils.v("==========="+i+" is to show=========");
+		
+//		Bitmap bitmap = GetAssetsFile.getImageFromAssetsFile(ShowImageActivity.this, "images/image"+i+".jpg");
+//		imageView.setImageBitmap(bitmap);
+//		imageView.setTag("images/image"+i+".jpg");
+		
+		/*
+		 * 初始展示
+		 */
+		initShow(pi);
+		
+		
+		try {
+			position = intent.getIntExtra("position", 0);
+			pic_idList = intent.getIntegerArrayListExtra("pic_idList");
+//			category = intent.getStringExtra("category");
+			page = intent.getIntExtra("page", 0);
+
+		} catch (NullPointerException e) {
+
+			preBt.setVisibility(View.INVISIBLE);
+			nextBt.setVisibility(View.INVISIBLE);
+
+		}
+		
+	   focusButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				Map<String,Object> setfocusmap=new HashMap<String,Object>();
+				setfocusmap.put("user_id", user_id);
+				setfocusmap.put("focus_id", uploader_id);
+				SetFocusTask setfocus=new SetFocusTask();
+				setfocus.execute(setfocusmap);
+				
+			}
+		});
+
+//		user_id = intent.getIntExtra("user_id", 0);
+//		collectOrNot = intent.getBooleanExtra("Collectornot", false);
+//		if (collectOrNot) {
+//			collectButton.setText("已收藏");
+//			collectButton.setBackgroundColor(Color.GRAY);
+//			collectButton.setClickable(false);
+//		}
+		
+		
+		/*
+		 * 加载图画信息
+		 */
+		loadImageInfo();
+//		TODO
+		Picasso.with(ShowImageActivity.this)
+				.load(Constant.Painting.GET_PICTURE+pic_id).into(imageView);
+
+		
+		uploaderText.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				
+				if(uploader_id > 0){
+				Intent it = new Intent(ShowImageActivity.this,
+						PersonInfoActivity.class);
+				it.putExtra("person_id", uploader_id);
+				LogUtils.v("uploader_id"+uploader_id+"=========================");
+				it.putExtra("user_id",user_id);
+				it.putExtra("username", uploaderText.getText().toString());
+				startActivity(it);
+				}
+
+			}
+
+		});
+
+		imageView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ShowImageActivity.this,
+						PictureChangeSizeShowActivity.class);
+				intent.putExtra("url", (String)v.getTag());
+				startActivity(intent);
+
+			}
+		});
+
+//		collectButton.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				if (!isWorking) {
+//					Map<String, Object> map = new HashMap<String, Object>();
+//					map.put("user_id", user_id);
+//					map.put("pic_id", pic_id);
+//					CollectTask collectPainting = new CollectTask();
+//					collectPainting.execute(map);
+//				}
+//			}
+//		});
+
+		preBt.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				if (position > 0) {
+
+					position--;
+					pic_id = pic_idList.get(position);
+					if (jsonMap.get(pic_id) != null) {
+						openJSONMap(jsonMap.get(pic_id));
+
+					} else {
+						getPaintingInfo(user_id, pic_id);
+						preBt.setClickable(false);
+						nextBt.setClickable(false);
+					}
+//					TODO
+//					Picasso.with(ShowImageActivity.this)
+//							.load(Constant.Painting.GET_PICTURE + pic_id)
+//							.into(imageView);
+
+				} else {
+					Toast.makeText(ShowImageActivity.this, "已经第一页了",
+							Toast.LENGTH_LONG).show();
+				}
+			}
+		});
+
+		nextBt.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				position++;
+				if (position < pic_idList.size()) {
+					pic_id = pic_idList.get(position);
+					JSONObject ret;
+					if ((ret = jsonMap.get(pic_id)) != null) {
+						openJSONMap(ret);
+
+					} else {
+						getPaintingInfo(user_id, pic_id);
+						preBt.setClickable(false);
+						nextBt.setClickable(false);
+					}
+//					TODO
+//					Picasso.with(ShowImageActivity.this)
+//							.load(Constant.Painting.GET_PICTURE + pic_id)
+//							.into(imageView);
+				} else if (page != 0) {
+					preBt.setClickable(false);
+					nextBt.setClickable(false);
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("page", page);
+					map.put("size", SIZE);
+					map.put("category", category);
+					QueryListTask task = new QueryListTask();
+					task.execute(map);
+
+				}
+			}
+		});
+		
+		commentBt.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				Intent commIntent=new Intent();
+				commIntent.setAction(comment);
+				commIntent.putExtra("pic_id", pic_id);
+				commIntent.putExtra("user_id", user_id);
+				startActivity(commIntent);
+				
+			}
+		});
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public void getPaintingInfo(int user_id, int pic_id) {
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("user_id", user_id);
+		map.put("pic_id", pic_id);
+		ShowImageTask task = new ShowImageTask();
+		task.execute(map);
+
+	}
+
+	public void openJSONMap(JSONObject ret) {
+		String name = ret.optString("name");
+		String author = ret.optString("author");
+		int high = ret.optInt("high");
+		int width = ret.optInt("width");
+		String date_creation = ret.optString("date_creation");
+		String date_on = ret.optString("date_on");
+		boolean identification = ret.optBoolean("identification");
+		String introduction=ret.optString("introduction");
+		String up_name = ret.optString("username");
+	    uploader_id = ret.optInt("up_actor_id");
+//		collectOrNot = ret.optBoolean("collect_or_not");
+
+		String[] date_creation_array = date_creation.split("-");
+		String[] date_on_array = date_on.split("-");
+
+		nameText.setText(name);
+//		if (collectOrNot) {
+//			collectButton.setText("已收藏");
+//			collectButton.setClickable(false);
+//			collectButton.setBackgroundColor(Color.GRAY);
+//		}
+		authorText.setText(author);
+		sizeText.setText("长" + high + "宽" + width);
+		date_creationText.setText(date_creation_array[0] + "年"
+				+ date_creation_array[1] + "月" + date_creation_array[2] + "日");
+		identificationText.setText(identification == true ? "已认证" : "未认证");
+//		TODO
+//		imageView.setTag(pic_id);
+		if(introduction!=null && !introduction.isEmpty()){
+//			TODO
+		introductionText.setText(introduction);
+		}
+		uploaderText.setText(up_name);
+
+	}
+
+	class CollectTask extends
+			AsyncTask<Map<String, Object>, Integer, JSONObject> {
+		Boolean successOrNot = false;
+		int checkCode;
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+
+			if ((checkCode == 1) && successOrNot) {
+				Toast.makeText(ShowImageActivity.this, "添加收藏成功",
+						Toast.LENGTH_LONG).show();
+				collectButton.setClickable(false);
+				collectButton.setBackgroundColor(Color.DKGRAY);
+				collectButton.setText("已收藏");
+			} else {
+				Toast.makeText(ShowImageActivity.this, "收藏失败",
+						Toast.LENGTH_LONG).show();
+			}
+			isWorking = false;
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			isWorking = true;
+
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Painting.SET_COL, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									JSONObject ret = json
+											.optJSONObject("result");
+									successOrNot = ret.optBoolean("success");
+
+									checkCode = json.optInt("code");
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+
+	}
+
+	class ShowImageTask extends
+			AsyncTask<Map<String, Object>, Integer, JSONObject> {
+		private int checkCode = 0;
+		JSONObject ret;
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			if ((checkCode == 1) && (ret != null)) {
+
+				jsonMap.put(pic_id, ret);
+
+				openJSONMap(ret);
+				
+				
+			}
+			preBt.setClickable(true);
+			nextBt.setClickable(true);
+
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Painting.PAINTING_SHOW, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if (json != null && json.optInt("code") == 1) {
+									ret = json.optJSONObject("result");
+
+									checkCode = json.optInt("code");
+								}
+
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+	}
+
+	class QueryListTask extends
+			AsyncTask<Map<String, Object>, Integer, JSONObject> {
+		int checkCode;
+		JSONArray items;
+		int pages;
+
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			if (checkCode == 1) {
+
+				for (int i = 0; i < items.length(); i++) {
+
+					JSONObject itemObject = items.optJSONObject(i);
+					int pic_id = itemObject.optInt("pic_id");
+					pic_idList.add(pic_id);
+
+					if (i == 0) {
+						getPaintingInfo(user_id, pic_id);
+//						TODO
+//						Picasso.with(ShowImageActivity.this)
+//								.load(Constant.Painting.GET_PICTURE + pic_id)
+//								.into(imageView);
+					}
+
+				}
+			}
+		}
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+
+			isWorking = true;
+
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Painting.PAINTING_LOAD, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if(json!=null){
+									checkCode = json.optInt("code");
+							
+								if (json.optInt("code") == 1) {
+									JSONObject ret = json
+											.optJSONObject("result");
+									items = ret.optJSONArray("items");
+									JSONObject request = json
+											.optJSONObject("request");
+									pages = request.optInt("page");
+									
+
+								}}
+
+								return json;
+							}	
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+
+		}
+
+	}
+	
+	public void initShow(PaintingItem pi){
+		
+        pic_id = pi.getPic_id();
+        
+//        TODO
+//        Picasso.with(ShowImageActivity.this).load(Constant.Painting.GET_PICTURE+pic_id).into(imageView);
+		
+		count_read = pi.getCount_read();
+		count_comment = pi.getCount_comment();
+		recommendation = pi.getRecommendation();
+		countText.setText(count_read+"人气/"+count_comment+"评论/"+recommendation+"推荐");
+		
+		
+		category = pi.getCategory();
+		categoryText.setText(category);
+		
+		date_on = pi.getDate_on();
+		GetUploadTimeToNow guttn = new GetUploadTimeToNow();
+    	Long quot=guttn.getTime(date_on);
+    	quot=quot/1000/60/60/24;
+    	if(quot==Long.valueOf(0)){
+    	date_onText.setText("一天内");
+    	}
+    	else{
+    		date_onText.setText(quot+"天前");
+    	}
+		
+		
+		pic_name = pi.getPic_name();
+		nameText.setText(pic_name);
+		
+		uploader = pi.getUploader();
+		uploaderText.setText(uploader);
+		
+		uploader_id = pi.getUploader_id();
+		Picasso.with(ShowImageActivity.this).load(Constant.Api.GET_PHOTO+uploader_id).into(photoView);
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void loadImageInfo(){
+		ShowImageTask showImageTask = new ShowImageTask();
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("pic_id", pic_id);
+		map.put("user_id", user_id);
+		showImageTask.execute(map);
+	}
+	
+	 class SetFocusTask extends AsyncTask<Map<String,Object>, Integer, JSONObject>{
+		   
+		   private int checkCode;
+		   private Boolean isSuccess=false;
+
+		@Override
+		protected JSONObject doInBackground(Map<String, Object>... params) {
+			MyHttpClient cl = MyHttpClient.getInstance();
+
+			List<NameValuePair> list = new ArrayList<NameValuePair>();
+
+			JSONObject json = new JSONObject(params[0]);
+
+			NameValuePair pa = new BasicNameValuePair("json", json.toString());
+			list.add(pa);
+
+			try {
+				cl.post(Constant.Api.SET_FOCUS, list,
+						new JSONResponseHandler<JSONObject>() {
+
+							@Override
+							public JSONObject handlerJson(JSONObject json) {
+								if(json!=null){
+									
+								checkCode=json.optInt("code");
+								if(json.optInt("code")==1){
+									JSONObject result=json.optJSONObject("result");
+									if(result!=null){
+									isSuccess=result.optBoolean("success");
+									}
+								}
+								}
+								return json;
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return json;
+			
+		}
+
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+			if(isSuccess && (checkCode==1)){
+				focusButton.setClickable(false);
+				focusButton.setText(R.string.focused);
+				focusButton.setBackgroundColor(Color.GRAY);
+				Toast.makeText(ShowImageActivity.this, "关注成功", Toast.LENGTH_LONG).show();
+				
+			}
+			else{
+				Toast.makeText(ShowImageActivity.this, "关注失败", Toast.LENGTH_LONG).show();
+			}
+		}
+
+		   
+	   }
+
+}
